@@ -14,18 +14,24 @@ const svg = d3.select("body")
 let t = 0;
 
 setInterval(() => {
-
-    const data = d3.range(15).map(d => ({
+    const n = 10 + Math.sin(t) * 5;
+    const data = d3.range(n).map(d => ({
         x: d * 60 + 50,
         y: 250 + Math.sin(d * 0.5 + t) * 220
     }));
 
-    const circles = svg.selectAll("circle").data(data);
-    circles.enter().append("circle").attr("r", 20);
-    circles
+    // join is the merge of enter and update selection
+    // join also call the exit selection that removes the 
+    // elements from DOM for which no data is associated
+
+    const circles = svg
+        .selectAll("circle")
+        .data(data)
+        .join("circle")
+        .attr("r", 20)
         .attr("cx", (d) => d.x)
         .attr("cy", (d) => d.y);
 
     t = t + 0.1;
 
-}, 50);
+}, 1000 / 60);
