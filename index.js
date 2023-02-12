@@ -42,9 +42,9 @@ const main = async () => {
 
     // acts as a setter if we provide a value
     // if we do not provide a value like below, it acts as a getter
-    console.log(x.domain());
+    //console.log(x.domain());
 
-    console.log(x.range());
+    //console.log(x.range());
 
     // svg.selectAll("circle")
     //    .data(parsedData)
@@ -62,8 +62,8 @@ const xValue = (d) => {
 };
 
 const yValue = (d) => {
-    depth = 0;
-    for (let i = 0; i < d.swtraces.length(); i++) {
+    let depth = 0;
+    for (let i = 0; i < d.swtraces.length; i++) {
         depth = depth + d.swtraces[i].qdepth;
     }
     return depth
