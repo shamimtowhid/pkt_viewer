@@ -31,6 +31,10 @@ const yValue = (d) => {
 	return depth;
 };
 
+const srcIP = (d) => d.src_ip;
+const dstIP = (d) => d.dst_ip;
+const pktSize = (d) => d.pkt_size_byte;
+
 // data processing and plotting
 const main = async () => {
 	const data = await d3.json(jsonUrl).catch((error) => {
@@ -64,6 +68,9 @@ const main = async () => {
 	const marks = parsedData.map((d) => ({
 		x: x(xValue(d)),
 		y: y(yValue(d)),
+		label: `Destination IP: ${dstIP(d)}\nSource IP: ${srcIP(
+			d
+		)}\nSize: ${pktSize(d)} bytes`,
 	}));
 
 	const svg = d3
@@ -77,7 +84,9 @@ const main = async () => {
 		.join("circle")
 		.attr("cx", (d) => d.x)
 		.attr("cy", (d) => d.y)
-		.attr("r", radius);
+		.attr("r", radius)
+		.append("title")
+		.text((d) => `${d.label}`);
 
 	svg.append("g")
 		.attr("transform", `translate(${margin.left}, 0)`)
