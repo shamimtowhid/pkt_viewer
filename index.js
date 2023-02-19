@@ -28,7 +28,7 @@ const yValue = (d) => {
 	for (let i = 0; i < d.swtraces.length; i++) {
 		depth = depth + d.swtraces[i].qdepth;
 	}
-	return depth;
+	return depth / d.swtraces.length;
 };
 
 const srcIP = (d) => d.src_ip;
@@ -68,7 +68,7 @@ const main = async () => {
 	const marks = parsedData.map((d) => ({
 		x: x(xValue(d)),
 		y: y(yValue(d)),
-		label: `Destination IP: ${dstIP(d)}\nSource IP: ${srcIP(
+		label: `Source IP: ${srcIP(d)}\nDestination IP: ${dstIP(
 			d
 		)}\nSize: ${pktSize(d)} bytes`,
 	}));
