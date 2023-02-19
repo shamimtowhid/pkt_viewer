@@ -48,7 +48,7 @@ const main = async () => {
 		bottom: 100,
 		left: 100,
 	};
-	const radius = 5;
+	const radius = 10;
 	// return min and max for domain
 	const x = d3
 		.scaleLinear()
