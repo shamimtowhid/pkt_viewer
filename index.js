@@ -43,17 +43,18 @@ const main = async () => {
 	let parsedData = data.map(parseObject);
 
 	const margin = {
-		top: 40,
-		right: 40,
-		bottom: 40,
-		left: 40,
+		top: 100,
+		right: 100,
+		bottom: 100,
+		left: 100,
 	};
 	const radius = 5;
 	// return min and max for domain
 	const x = d3
 		.scaleLinear()
 		.domain(d3.extent(parsedData, xValue))
-		.range([margin.left, width - margin.right]);
+		.range([margin.left, width - margin.right])
+		.nice();
 
 	// acts as a setter if we provide a value
 	// if we do not provide a value like below, it acts as a getter
@@ -63,11 +64,19 @@ const main = async () => {
 	const y = d3
 		.scaleLinear()
 		.domain(d3.extent(parsedData, yValue))
-		.range([height - margin.bottom, margin.top]); // this range is flipped because origin is at upper left corner
+		.range([height - margin.bottom, margin.top]) // this range is flipped because origin is at upper left corner
+		.nice();
+
+	const color_scale = d3
+		.scaleOrdinal()
+		.domain(d3.extent(parsedData, dstIP))
+		.range(["#1b9e77", "#d95f02", "#7570b3"]); // color is selected by using colorbrewer2
 
 	const marks = parsedData.map((d) => ({
 		x: x(xValue(d)),
 		y: y(yValue(d)),
+		color: color_scale(dstIP(d)),
+		host_ip: dstIP(d),
 		label: `Source IP: ${srcIP(d)}\nDestination IP: ${dstIP(
 			d
 		)}\nSize: ${pktSize(d)} bytes`,
@@ -79,12 +88,14 @@ const main = async () => {
 		.attr("width", width)
 		.attr("height", height);
 
-	svg.selectAll("circle")
+	svg.selectAll(".dot")
 		.data(marks)
 		.join("circle")
+		.attr("class", "dot")
 		.attr("cx", (d) => d.x)
 		.attr("cy", (d) => d.y)
 		.attr("r", radius)
+		.style("fill", (d) => d.color)
 		.append("title")
 		.text((d) => `${d.label}`);
 
@@ -95,6 +106,16 @@ const main = async () => {
 	svg.append("g")
 		.attr("transform", `translate(0, ${height - margin.bottom})`)
 		.call(d3.axisBottom(x));
+
+	d3.selectAll("[name=host]").on("change", function () {
+		let selected = this.value;
+		const display = this.checked ? "inline" : "none";
+		svg.selectAll(".dot")
+			.filter((d) => {
+				return selected == d.host_ip;
+			})
+			.attr("display", display);
+	});
 };
 
 main();
