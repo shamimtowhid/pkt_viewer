@@ -45,7 +45,7 @@ const main = async () => {
 	const margin = {
 		top: 100,
 		right: 100,
-		bottom: 100,
+		bottom: 200,
 		left: 100,
 	};
 	const radius = 10;
