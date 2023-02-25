@@ -11,3 +11,7 @@ body {
 	stroke: #000;
 	stroke-width: 0.5;
 }
+
+.dot:hover {
+	stroke-width: 2;
+}

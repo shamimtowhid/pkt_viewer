@@ -88,16 +88,34 @@ const main = async () => {
 		.attr("width", width)
 		.attr("height", height);
 
-	svg.selectAll(".dot")
+	const circles = svg
+		.selectAll(".dot")
 		.data(marks)
 		.join("circle")
 		.attr("class", "dot")
 		.attr("cx", (d) => d.x)
 		.attr("cy", (d) => d.y)
 		.attr("r", radius)
-		.style("fill", (d) => d.color)
+		.style("fill", (d) => d.color);
+
+	// adding tooltop
+	circles
+		.data(marks)
 		.append("title")
 		.text((d) => `${d.label}`);
+
+	// Save the current position of the circles in the stacking order
+	const initialOrder = circles.order();
+
+	// chaning the z axis of a circle on hover
+	svg.selectAll(".dot")
+		.on("mouseover", function () {
+			this.parentNode.appendChild(this);
+		})
+		.on("mouseout", function () {
+			circles.order(initialOrder);
+			//this.parentNode.insertBefore(this, this.parentNode.firstChild);
+		});
 
 	svg.append("g")
 		.attr("transform", `translate(${margin.left}, 0)`)
