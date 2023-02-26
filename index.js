@@ -44,9 +44,9 @@ const main = async () => {
 
 	const margin = {
 		top: 100,
-		right: 100,
-		bottom: 200,
-		left: 100,
+		right: 400,
+		bottom: 400,
+		left: 500,
 	};
 	const radius = 10;
 	// return min and max for domain
@@ -109,7 +109,7 @@ const main = async () => {
 		.on("mouseover", function () {
 			d3.select(this)
 				.attr("r", radius * 1.2)
-				.style("stroke-width", 3);
+				.style("stroke-width", 2);
 			d3.select(this).raise();
 			//this.parentNode.appendChild(this);
 		})
