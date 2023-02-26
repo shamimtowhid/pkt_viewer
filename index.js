@@ -99,10 +99,7 @@ const main = async () => {
 		.style("fill", (d) => d.color);
 
 	// adding tooltop
-	circles
-		.data(marks)
-		.append("title")
-		.text((d) => `${d.label}`);
+	circles.append("title").text((d) => `${d.label}`);
 
 	// Save the current position of the circles in the stacking order
 	const initialOrder = circles.order();
@@ -110,13 +107,18 @@ const main = async () => {
 	// chaning the z axis of a circle on hover
 	svg.selectAll(".dot")
 		.on("mouseover", function () {
-			this.parentNode.appendChild(this);
+			d3.select(this)
+				.attr("r", radius * 1.2)
+				.style("stroke-width", 3);
+			d3.select(this).raise();
+			//this.parentNode.appendChild(this);
 		})
 		.on("mouseout", function () {
+			d3.select(this).attr("r", radius).style("stroke-width", 0.5);
 			circles.order(initialOrder);
-			//this.parentNode.insertBefore(this, this.parentNode.firstChild);
 		});
 
+	// adding the X and Y axis
 	svg.append("g")
 		.attr("transform", `translate(${margin.left}, 0)`)
 		.call(d3.axisLeft(y));
@@ -125,15 +127,18 @@ const main = async () => {
 		.attr("transform", `translate(0, ${height - margin.bottom})`)
 		.call(d3.axisBottom(x));
 
-	d3.selectAll("[name=host]").on("change", function () {
-		let selected = this.value;
-		const display = this.checked ? "inline" : "none";
-		svg.selectAll(".dot")
-			.filter((d) => {
-				return selected == d.host_ip;
-			})
-			.attr("display", display);
-	});
+	// adding legend (checkbox event)
+	const checkbox = d3
+		.selectAll("input[type='checkbox'][name='host']")
+		.on("change", function () {
+			let selected = this.value;
+			const display = this.checked ? "inline" : "none";
+			svg.selectAll(".dot")
+				.filter((d) => {
+					return selected == d.host_ip;
+				})
+				.attr("display", display);
+		});
 };
 
 main();

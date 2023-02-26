@@ -12,6 +12,26 @@ body {
 	stroke-width: 0.5;
 }
 
-.dot:hover {
-	stroke-width: 2;
+#label_h1 {
+	color: #1b9e77;
+}
+
+#label_h2 {
+	color: #7570b3;
+}
+
+#label_h3 {
+	color: #d95f02;
+}
+
+#host1 {
+	accent-color: #1b9e77;
+}
+
+#host2 {
+	accent-color: #7570b3;
+}
+
+#host3 {
+	accent-color: #d95f02;
 }
