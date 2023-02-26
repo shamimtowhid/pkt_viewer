@@ -44,9 +44,9 @@ const main = async () => {
 
 	const margin = {
 		top: 100,
-		right: 400,
-		bottom: 400,
-		left: 500,
+		right: 250,
+		bottom: 500,
+		left: 250,
 	};
 	const radius = 10;
 	// return min and max for domain

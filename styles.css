@@ -1,10 +1,12 @@
 body {
 	margin: 0;
 	overflow: hidden;
+	/* background-color: #000; */
 }
 
 .tick text {
 	font-size: 20px;
+	/* color: white; */
 }
 
 .dot {
@@ -12,26 +14,59 @@ body {
 	stroke-width: 0.5;
 }
 
+.larger {
+	width: 25px;
+	height: 25px;
+}
+
+#slider-container {
+	position: relative;
+	top: 360px;
+}
+
+#range-label {
+	position: relative;
+	top: 390px;
+}
+
 #label_h1 {
 	color: #1b9e77;
+	accent-color: #1b9e77;
+	font-size: 30px;
 }
 
 #label_h2 {
 	color: #7570b3;
+	accent-color: #7570b3;
+	position: relative;
+	left: 50px;
+	font-size: 30px;
 }
 
 #label_h3 {
 	color: #d95f02;
+	accent-color: #d95f02;
+	position: relative;
+	left: 100px;
+	font-size: 30px;
 }
 
-#host1 {
+/* #host1 {
 	accent-color: #1b9e77;
 }
 
 #host2 {
 	accent-color: #7570b3;
+	position: relative;
+	left: 10px;
 }
 
 #host3 {
 	accent-color: #d95f02;
+} */
+
+#legend {
+	position: relative;
+	left: 250px;
+	top: 100px;
 }

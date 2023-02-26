@@ -10,27 +10,28 @@
 	  <div id="legend">
 
 		<label id="label_h1">
-	    	<input name='host' id ="host1" value="10.0.1.1" type="checkbox" checked>Host1
+	    	<input name='host' class="larger" value="10.0.1.1" type="checkbox" checked><b>Host1</b>
 	    	</input>
 		</label>
 
 		<label id="label_h2">
-	    	<input name="host" id = "host2" value="10.0.2.2" type="checkbox" checked >Host2
+	    	<input name="host" class="larger" value="10.0.2.2" type="checkbox" checked ><b>Host2</b>
 	    	</input>
  	    </label>
 
 		<label id="label_h3">
-	    	<input name="host" id = "host3" value="10.0.3.3" type="checkbox" checked >Host3
+	    	<input name="host" class="larger" value="10.0.3.3" type="checkbox" checked ><b>Host3</b>
 	    	</input>
 		</label>
 
 		<div id="scatter_plot">
 			<script type="module" src="./index.js"></script>
+			<div id="slider-container">container</div>
+			<div id="range-label">0 - 10</div>
+
 		</div>
 	</div>
 
-	<div id="slider-container"></div>
-	<div id="range-label">0 - 10</div>
 
 	</body>
 </html>
