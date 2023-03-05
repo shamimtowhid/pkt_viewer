@@ -1,6 +1,11 @@
 const width = window.innerWidth;
 const height = window.innerHeight;
 
+const scatter_height =
+	d3.select("#scatter").node().offsetHeight -
+	d3.select("#label_h1").node().offsetHeight;
+const scatter_width = d3.select("#scatter").node().offsetWidth;
+
 const jsonUrl = [
 	"https://gist.githubusercontent.com/",
 	"shamimtowhid/",
@@ -42,18 +47,18 @@ const main = async () => {
 	});
 	let parsedData = data.map(parseObject);
 
-	const margin = {
-		top: 100,
-		right: 250,
-		bottom: 500,
-		left: 250,
+	const scatter_margin = {
+		top: 10,
+		right: 80,
+		bottom: 80,
+		left: 80,
 	};
-	const radius = 10;
+	const radius = 3;
 	// return min and max for domain
 	const x = d3
 		.scaleLinear()
 		.domain(d3.extent(parsedData, xValue))
-		.range([margin.left, width - margin.right])
+		.range([scatter_margin.left, scatter_width - scatter_margin.right])
 		.nice();
 
 	// acts as a setter if we provide a value
@@ -64,7 +69,7 @@ const main = async () => {
 	const y = d3
 		.scaleLinear()
 		.domain(d3.extent(parsedData, yValue))
-		.range([height - margin.bottom, margin.top]) // this range is flipped because origin is at upper left corner
+		.range([scatter_height - scatter_margin.bottom, scatter_margin.top]) // this range is flipped because origin is at upper left corner
 		.nice();
 
 	const color_scale = d3
@@ -82,13 +87,13 @@ const main = async () => {
 		)}\nSize: ${pktSize(d)} bytes`,
 	}));
 
-	const svg = d3
-		.select("body")
+	const scatter_svg = d3
+		.select("#scatter")
 		.append("svg")
-		.attr("width", width)
-		.attr("height", height);
+		.attr("width", scatter_width)
+		.attr("height", scatter_height);
 
-	const circles = svg
+	const circles = scatter_svg
 		.selectAll(".dot")
 		.data(marks)
 		.join("circle")
@@ -99,32 +104,37 @@ const main = async () => {
 		.style("fill", (d) => d.color);
 
 	// adding tooltop
-	circles.append("title").text((d) => `${d.label}`);
+	//circles.append("title").text((d) => `${d.label}`);
 
 	// Save the current position of the circles in the stacking order
-	const initialOrder = circles.order();
+	//const initialOrder = circles.order();
 
 	// chaning the z axis of a circle on hover
-	svg.selectAll(".dot")
-		.on("mouseover", function () {
-			d3.select(this)
-				.attr("r", radius * 1.2)
-				.style("stroke-width", 2);
-			d3.select(this).raise();
-			//this.parentNode.appendChild(this);
-		})
-		.on("mouseout", function () {
-			d3.select(this).attr("r", radius).style("stroke-width", 0.5);
-			circles.order(initialOrder);
-		});
+	// svg.selectAll(".dot")
+	// 	.on("mouseover", function () {
+	// 		d3.select(this)
+	// 			.attr("r", radius * 1.2)
+	// 			.style("stroke-width", 2);
+	// 		d3.select(this).raise();
+	// 		//this.parentNode.appendChild(this);
+	// 	})
+	// 	.on("mouseout", function () {
+	// 		d3.select(this).attr("r", radius).style("stroke-width", 0.5);
+	// 		circles.order(initialOrder);
+	// 	});
 
 	// adding the X and Y axis
-	svg.append("g")
-		.attr("transform", `translate(${margin.left}, 0)`)
+	scatter_svg
+		.append("g")
+		.attr("transform", `translate(${scatter_margin.left}, 0)`)
 		.call(d3.axisLeft(y));
 
-	svg.append("g")
-		.attr("transform", `translate(0, ${height - margin.bottom})`)
+	scatter_svg
+		.append("g")
+		.attr(
+			"transform",
+			`translate(0, ${scatter_height - scatter_margin.bottom})`
+		)
 		.call(d3.axisBottom(x));
 
 	// adding legend (checkbox event)
@@ -133,7 +143,8 @@ const main = async () => {
 		.on("change", function () {
 			let selected = this.value;
 			const display = this.checked ? "inline" : "none";
-			svg.selectAll(".dot")
+			scatter_svg
+				.selectAll(".dot")
 				.filter((d) => {
 					return selected == d.host_ip;
 				})
