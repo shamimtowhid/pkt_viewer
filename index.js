@@ -81,10 +81,12 @@ const main = async () => {
 		x: x(xValue(d)),
 		y: y(yValue(d)),
 		color: color_scale(dstIP(d)),
-		host_ip: dstIP(d),
-		label: `Source IP: ${srcIP(d)}\nDestination IP: ${dstIP(
-			d
-		)}\nSize: ${pktSize(d)} bytes`,
+		destination_ip: dstIP(d),
+		source_ip: srcIP(d),
+		size_in_bytes: pktSize(d),
+		//label: `Source IP: ${srcIP(d)}\nDestination IP: ${dstIP(
+		//	d
+		//)}\nSize: ${pktSize(d)} bytes`,
 	}));
 
 	const scatter_svg = d3
@@ -147,13 +149,58 @@ const main = async () => {
 			circles
 				//.selectAll(".dot")
 				.filter((d) => {
-					return selected == d.host_ip;
+					return selected == d.destination_ip;
 				})
 				.attr("display", display);
 		});
 
+	// function for create table
+	function tabulate(data, columns) {
+		const table = d3
+			.select("#table")
+			.append("table")
+			.attr("id", "added_table");
+		const thead = table.append("thead");
+		const tbody = table.append("tbody");
+
+		// append the header row
+		thead
+			.append("tr")
+			.selectAll("th")
+			.data(columns)
+			.enter()
+			.append("th")
+			.text(function (column) {
+				return column;
+			});
+
+		// create a row for each object in the data
+		// TODO: add click event to the row of the table
+		var rows = tbody.selectAll("tr").data(data).enter().append("tr");
+
+		// create a cell in each row for each column
+		var cells = rows
+			.selectAll("td")
+			.data(function (row) {
+				return columns.map(function (column) {
+					return { column: column, value: row[column] };
+				});
+			})
+			.enter()
+			.append("td")
+			.text(function (d) {
+				return d.value;
+			});
+
+		return table;
+	}
+
 	// brush activity
-	scatter_svg.call(d3.brush().on("start brush end", brushed));
+	// the on method takes two parameters: typenames and listener
+	// typenames define when to call the listener function
+	// listener function defines what to do
+	// example typenames: "start brush end"
+	scatter_svg.call(d3.brush().on("end", brushed));
 
 	function brushed({ selection }) {
 		// selection containes the x,y coordinates of starting and end position
@@ -173,9 +220,19 @@ const main = async () => {
 				});
 		} else {
 			// when clicked on the svg without selection
-			console.log("else");
+			d3.select("#added_table").remove();
+			d3.select("#table_msg").text("No packet is selected"); // no packet selected
 		}
-		console.log(value); // addd the value to the table
+		if (value.size > 0) {
+			d3.select("#added_table").remove();
+			d3.select("#table_msg").text(
+				`Number of selected packet: ${value.size}`
+			);
+			tabulate(value, ["source_ip", "destination_ip", "size_in_bytes"]);
+		} else {
+			d3.select("#added_table").remove();
+			d3.select("#table_msg").text("No packet is selected"); // no packet selected
+		}
 	}
 };
 
