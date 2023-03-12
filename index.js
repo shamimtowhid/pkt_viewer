@@ -101,6 +101,7 @@ const main = async () => {
 		.attr("cx", (d) => d.x)
 		.attr("cy", (d) => d.y)
 		.attr("r", radius)
+		.attr("display", "inline")
 		.style("fill", (d) => d.color);
 
 	// adding tooltop
@@ -143,13 +144,39 @@ const main = async () => {
 		.on("change", function () {
 			let selected = this.value;
 			const display = this.checked ? "inline" : "none";
-			scatter_svg
-				.selectAll(".dot")
+			circles
+				//.selectAll(".dot")
 				.filter((d) => {
 					return selected == d.host_ip;
 				})
 				.attr("display", display);
 		});
+
+	// brush activity
+	scatter_svg.call(d3.brush().on("start brush end", brushed));
+
+	function brushed({ selection }) {
+		// selection containes the x,y coordinates of starting and end position
+		//console.log(selection);
+		const value = new Set();
+		if (selection) {
+			const [[x0, y0], [x1, y1]] = selection;
+			circles
+				.filter(function () {
+					// returns only circles that have display=inline
+					return d3.select(this).attr("display") === "inline";
+				})
+				.filter((d) => {
+					if (x0 <= d.x && d.x < x1 && y0 <= d.y && d.y < y1) {
+						value.add(d);
+					}
+				});
+		} else {
+			// when clicked on the svg without selection
+			console.log("else");
+		}
+		console.log(value); // addd the value to the table
+	}
 };
 
 main();
