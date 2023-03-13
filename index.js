@@ -144,6 +144,12 @@ const main = async () => {
 	const checkbox = d3
 		.selectAll("input[type='checkbox'][name='host']")
 		.on("change", function () {
+			// remove the added_table/table message/selected circle and brush selection box if there is any
+			d3.selectAll("#added_table").remove();
+			d3.selectAll("#large_circle").remove();
+			d3.select("#table_msg").text("No packet is selected");
+			d3.select("#brush").call(d3.brush().move, null);
+
 			let selected = this.value;
 			const display = this.checked ? "inline" : "none";
 			circles
@@ -171,12 +177,42 @@ const main = async () => {
 			.enter()
 			.append("th")
 			.text(function (column) {
-				return column;
+				return column.replaceAll("_", " ").toUpperCase();
 			});
 
 		// create a row for each object in the data
-		// TODO: add click event to the row of the table
-		var rows = tbody.selectAll("tr").data(data).enter().append("tr");
+		var rows = tbody
+			.selectAll("tr")
+			.data(data)
+			.enter()
+			.append("tr")
+			.on("click", function () {
+				const highlighted = d3.select(this).classed("highlight");
+
+				if (highlighted) {
+					d3.select(this).classed("highlight", false);
+					d3.selectAll("#large_circle").remove();
+				} else {
+					// Remove "highlight" class from all rows and circles with id large_circle
+					d3.selectAll("tr").classed("highlight", false);
+					d3.selectAll("#large_circle").remove();
+					// Add highlight class to this row.
+					d3.select(this).classed("highlight", true);
+					const data_point = d3.select(this).data(); //TODO: draw a new circle with this data
+					//console.log(data_point[0]["x"]);
+					scatter_svg
+						.append("circle")
+						// .attr("class", "dot")
+						.attr("id", "large_circle")
+						.attr("cx", data_point[0]["x"])
+						.attr("cy", data_point[0]["y"])
+						.attr("r", 10)
+						.attr("stroke", "#000")
+						.attr("stroke-width", 2)
+						.attr("display", "inline")
+						.style("fill", data_point[0]["color"]);
+				}
+			});
 
 		// create a cell in each row for each column
 		var cells = rows
@@ -200,12 +236,16 @@ const main = async () => {
 	// typenames define when to call the listener function
 	// listener function defines what to do
 	// example typenames: "start brush end"
-	scatter_svg.call(d3.brush().on("end", brushed));
+	const brush = d3.brush().on("end", brushed);
+	scatter_svg.append("g").attr("id", "brush").call(brush);
 
 	function brushed({ selection }) {
 		// selection containes the x,y coordinates of starting and end position
 		//console.log(selection);
 		const value = new Set();
+		// removing all the large circles resulted from previous selection operation
+		d3.selectAll("#large_circle").remove();
+
 		if (selection) {
 			const [[x0, y0], [x1, y1]] = selection;
 			circles
