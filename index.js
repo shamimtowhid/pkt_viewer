@@ -106,39 +106,46 @@ const main = async () => {
 		.attr("display", "inline")
 		.style("fill", (d) => d.color);
 
-	// adding tooltop
-	//circles.append("title").text((d) => `${d.label}`);
-
-	// Save the current position of the circles in the stacking order
-	//const initialOrder = circles.order();
-
-	// chaning the z axis of a circle on hover
-	// svg.selectAll(".dot")
-	// 	.on("mouseover", function () {
-	// 		d3.select(this)
-	// 			.attr("r", radius * 1.2)
-	// 			.style("stroke-width", 2);
-	// 		d3.select(this).raise();
-	// 		//this.parentNode.appendChild(this);
-	// 	})
-	// 	.on("mouseout", function () {
-	// 		d3.select(this).attr("r", radius).style("stroke-width", 0.5);
-	// 		circles.order(initialOrder);
-	// 	});
-
 	// adding the X and Y axis
 	scatter_svg
 		.append("g")
+		.attr("class", "y_axis")
 		.attr("transform", `translate(${scatter_margin.left}, 0)`)
 		.call(d3.axisLeft(y));
 
+	// Add y-axis label
+	scatter_svg
+		.append("text")
+		.attr("class", "y label")
+		.attr("text-anchor", "middle")
+		.attr("font-size", "20px")
+		// .attr("style", "font-weight: bold")
+		.attr("x", -scatter_height / 2 + 30)
+		.attr("y", 30)
+		.attr("transform", "rotate(-90)")
+		.text("Queue Depth (avg.)");
+
 	scatter_svg
 		.append("g")
+		.attr("class", "x_axis")
 		.attr(
 			"transform",
 			`translate(0, ${scatter_height - scatter_margin.bottom})`
 		)
 		.call(d3.axisBottom(x));
+
+	// Add x-axis label
+	scatter_svg
+		.append("text")
+		.attr("class", "x label")
+		.attr("text-anchor", "middle")
+		.attr("font-size", "20px")
+		// .attr("style", "font-weight: bold")
+		.attr("x", scatter_width / 2)
+		.attr("y", scatter_height - 30)
+		.text("Time (second)");
+
+	// Create the range slider
 
 	// adding legend (checkbox event)
 	const checkbox = d3
@@ -232,7 +239,7 @@ const main = async () => {
 	}
 
 	// brush activity
-	// the on method takes two parameters: typenames and listener
+	// the "on" method takes two parameters: typenames and listener
 	// typenames define when to call the listener function
 	// listener function defines what to do
 	// example typenames: "start brush end"
@@ -263,6 +270,7 @@ const main = async () => {
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected
 		}
+		// generate table based on the selected circles
 		if (value.size > 0) {
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text(
@@ -277,6 +285,26 @@ const main = async () => {
 };
 
 main();
+
+// adding tooltop
+//circles.append("title").text((d) => `${d.label}`);
+
+// Save the current position of the circles in the stacking order
+//const initialOrder = circles.order();
+
+// chaning the z axis of a circle on hover
+// svg.selectAll(".dot")
+// 	.on("mouseover", function () {
+// 		d3.select(this)
+// 			.attr("r", radius * 1.2)
+// 			.style("stroke-width", 2);
+// 		d3.select(this).raise();
+// 		//this.parentNode.appendChild(this);
+// 	})
+// 	.on("mouseout", function () {
+// 		d3.select(this).attr("r", radius).style("stroke-width", 0.5);
+// 		circles.order(initialOrder);
+// 	});
 
 // code for moving circles, (sin wave)
 
