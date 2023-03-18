@@ -18,7 +18,12 @@ const main = async () => {
 		console.error(error);
 	});
 
+	// scatter plot
 	const [scatter_svg, circles] = scatter_plot(data);
+
+	// bar plot
+
+	// topology plot
 
 	// adding brush activity to scatter_svg
 	// the "on" method takes two parameters: typenames and listener
