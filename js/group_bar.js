@@ -105,27 +105,18 @@ export function bar_plot(data) {
 		max_duration,
 	] = preapre_data(data);
 
-	const depth_scale = d3
-		.scaleLinear()
-		.domain([min_depth, max_depth])
-		.range([0, 1]);
-	const duration_scale = d3
-		.scaleLinear()
-		.domain([min_duration, max_duration])
-		.range([0, 1]);
-
 	const plot_data = [
 		{
 			group: "Normalized queue depth",
-			s1: depth_scale(s1_qdepth),
-			s2: depth_scale(s2_qdepth),
-			s3: depth_scale(s3_qdepth),
+			s1: s1_qdepth,
+			s2: s2_qdepth,
+			s3: s3_qdepth,
 		},
 		{
 			group: "Normalized packet duration",
-			s1: duration_scale(s1_duration),
-			s2: duration_scale(s2_duration),
-			s3: duration_scale(s3_duration),
+			s1: s1_duration,
+			s2: s2_duration,
+			s3: s3_duration,
 		},
 	];
 	console.log(plot_data);
@@ -147,6 +138,16 @@ export function bar_plot(data) {
 		.call(d3.axisBottom(x).tickSize(0));
 
 	// Add Y axis
+	const depth_scale = d3
+		.scaleLinear()
+		.domain([min_depth, max_depth])
+		.range([svg_height, 0]);
+
+	const duration_scale = d3
+		.scaleLinear()
+		.domain([min_depth, max_duration])
+		.range([svg_height, 0]);
+
 	var y = d3.scaleLinear().domain([0, 1]).range([svg_height, 0]);
 
 	bar_svg.append("g").attr("class", "bar_g").call(d3.axisLeft(y));
@@ -179,7 +180,7 @@ export function bar_plot(data) {
 		.selectAll("rect")
 		.data(function (d) {
 			return subgroups.map(function (key) {
-				return { key: key, value: d[key] };
+				return { key: key, value: d[key], group: d["group"] };
 			});
 		})
 		.enter()
@@ -188,11 +189,19 @@ export function bar_plot(data) {
 			return xSubgroup(d.key);
 		})
 		.attr("y", function (d) {
-			return y(d.value);
+			if (d.group === "Normalized queue depth") {
+				return depth_scale(d.value);
+			} else {
+				return duration_scale(d.value);
+			}
 		})
 		.attr("width", xSubgroup.bandwidth())
 		.attr("height", function (d) {
-			return svg_height - y(d.value);
+			if (d.group === "Normalized queue depth") {
+				return svg_height - depth_scale(d.value);
+			} else {
+				return svg_height - duration_scale(d.value);
+			}
 		})
 		.attr("fill", function (d) {
 			return color(d.key);

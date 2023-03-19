@@ -77,6 +77,7 @@ const main = async () => {
 				["source_ip", "destination_ip", "size_in_bytes"],
 				scatter_svg
 			);
+			console.log(value);
 		} else {
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected
