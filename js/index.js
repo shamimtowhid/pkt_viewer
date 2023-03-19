@@ -1,4 +1,5 @@
 import { scatter_plot } from "./scatter.js";
+import { bar_plot } from "./group_bar.js";
 import { tabulate } from "./table.js";
 
 //const width = window.innerWidth;
@@ -12,17 +13,26 @@ const jsonUrl = [
 	"network_data.json",
 ].join("");
 
+// converting string data to float
+const parseObject = (d) => {
+	d.rcv_time = +d.rcv_time;
+	d.send_time = +d.send_time;
+	return d;
+};
+
 // downloading data and create plots
 const main = async () => {
 	const data = await d3.json(jsonUrl).catch((error) => {
 		console.error(error);
 	});
 
+	const parsedData = data.map(parseObject);
+
 	// scatter plot
-	const [scatter_svg, circles] = scatter_plot(data);
+	const [scatter_svg, circles] = scatter_plot(parsedData);
 
 	// bar plot
-
+	const bar_svg = bar_plot(parsedData);
 	// topology plot
 
 	// adding brush activity to scatter_svg

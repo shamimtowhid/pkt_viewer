@@ -4,13 +4,6 @@ const scatter_height =
 
 const scatter_width = d3.select("#scatter").node().offsetWidth;
 
-// converting string data to float
-const parseObject = (d) => {
-	d.rcv_time = +d.rcv_time;
-	d.send_time = +d.send_time;
-	return d;
-};
-
 // preparing X data
 const xValue = (d) => {
 	const ts1 = 1675921681.915128;
@@ -38,9 +31,7 @@ const scatter_margin = {
 };
 const radius = 3;
 
-export function scatter_plot(data) {
-	let parsedData = data.map(parseObject);
-
+export function scatter_plot(parsedData) {
 	const x = d3
 		.scaleLinear()
 		.domain(d3.extent(parsedData, xValue))
