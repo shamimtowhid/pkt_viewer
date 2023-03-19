@@ -106,6 +106,10 @@ th {
 	background: #f00;
 }
 
+.bar_g line {
+	stroke: #def;
+}
+
 /* #host1 {
 	accent-color: #1b9e77;
 }

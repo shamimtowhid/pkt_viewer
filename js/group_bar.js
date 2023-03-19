@@ -136,12 +136,6 @@ export function bar_plot(data) {
 
 	var x = d3.scaleBand().domain(groups).range([0, svg_width]).padding([0.2]);
 
-	bar_svg
-		.append("g")
-		.attr("class", "bar_g")
-		.attr("transform", "translate(0," + svg_height + ")")
-		.call(d3.axisBottom(x).tickSize(0));
-
 	// Add Y axis
 	const depth_scale = d3
 		.scaleLinear()
@@ -154,8 +148,24 @@ export function bar_plot(data) {
 		.range([svg_height, 0]);
 
 	var y = d3.scaleLinear().domain([0, 1]).range([svg_height, 0]);
+	const yAxisGrid = d3
+		.axisLeft(y)
+		.tickSize(-svg_width)
+		.tickFormat("")
+		.ticks(5);
 
-	bar_svg.append("g").attr("class", "bar_g").call(d3.axisLeft(y));
+	bar_svg.append("g").attr("class", "bar_g").call(yAxisGrid);
+
+	bar_svg
+		.append("g")
+		.attr("class", "bar_g")
+		.call(d3.axisLeft(y).tickSize(-svg_width).ticks(5));
+
+	bar_svg
+		.append("g")
+		.attr("class", "bar_g")
+		.attr("transform", "translate(0," + svg_height + ")")
+		.call(d3.axisBottom(x).tickSize(0));
 
 	// Another scale for subgroup position
 	var xSubgroup = d3
@@ -170,7 +180,7 @@ export function bar_plot(data) {
 		.domain(subgroups)
 		.range(["#e41a1c", "#377eb8", "#4daf4a"]);
 
-	const min_bar_height = 3;
+	const min_bar_height = 3; // pixels
 	// Show the bars
 	bar_svg
 		.append("g")
