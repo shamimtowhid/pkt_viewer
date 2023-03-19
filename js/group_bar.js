@@ -1,5 +1,10 @@
 // set the dimensions and margins of the graph
-const margin = { top: 10, right: 30, bottom: 20, left: 50 };
+const margin = {
+	top: d3.select("#label_h1").node().offsetHeight + 10,
+	right: 30,
+	bottom: 20,
+	left: 50,
+};
 
 const svg_width =
 	d3.select("#bar").node().offsetWidth - margin.left - margin.right;
@@ -119,7 +124,7 @@ export function bar_plot(data) {
 			s3: s3_duration,
 		},
 	];
-	console.log(plot_data);
+	//console.log(plot_data);
 	const subgroups = ["s1", "s2", "s3"];
 	const groups = ["Normalized queue depth", "Normalized packet duration"];
 	// const groups = d3
@@ -165,6 +170,7 @@ export function bar_plot(data) {
 		.domain(subgroups)
 		.range(["#e41a1c", "#377eb8", "#4daf4a"]);
 
+	const min_bar_height = 3;
 	// Show the bars
 	bar_svg
 		.append("g")
@@ -190,17 +196,29 @@ export function bar_plot(data) {
 		})
 		.attr("y", function (d) {
 			if (d.group === "Normalized queue depth") {
-				return depth_scale(d.value);
+				return Math.min(
+					svg_height - min_bar_height,
+					depth_scale(d.value)
+				);
 			} else {
-				return duration_scale(d.value);
+				return Math.min(
+					svg_height - min_bar_height,
+					duration_scale(d.value)
+				);
 			}
 		})
 		.attr("width", xSubgroup.bandwidth())
 		.attr("height", function (d) {
 			if (d.group === "Normalized queue depth") {
-				return svg_height - depth_scale(d.value);
+				return Math.max(
+					min_bar_height,
+					svg_height - depth_scale(d.value)
+				);
 			} else {
-				return svg_height - duration_scale(d.value);
+				return Math.max(
+					min_bar_height,
+					svg_height - duration_scale(d.value)
+				);
 			}
 		})
 		.attr("fill", function (d) {
