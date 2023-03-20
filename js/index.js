@@ -32,7 +32,7 @@ const main = async () => {
 	const [scatter_svg, circles] = scatter_plot(parsedData);
 
 	// bar plot
-	const bar_svg = bar_plot(parsedData);
+	const bar_svg = bar_plot(circles.data());
 	// topology plot
 
 	// adding brush activity to scatter_svg
@@ -75,9 +75,10 @@ const main = async () => {
 			tabulate(
 				value,
 				["source_ip", "destination_ip", "size_in_bytes"],
-				scatter_svg
+				scatter_svg,
+				bar_svg
 			);
-			console.log(value);
+			//console.log(value);
 		} else {
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected

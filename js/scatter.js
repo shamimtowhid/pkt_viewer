@@ -22,6 +22,7 @@ const yValue = (d) => {
 const srcIP = (d) => d.src_ip;
 const dstIP = (d) => d.dst_ip;
 const pktSize = (d) => d.pkt_size_byte;
+const swtrace = (d) => d.swtraces;
 
 const scatter_margin = {
 	top: 10,
@@ -61,6 +62,7 @@ export function scatter_plot(parsedData) {
 		destination_ip: dstIP(d),
 		source_ip: srcIP(d),
 		size_in_bytes: pktSize(d),
+		swtraces: swtrace(d),
 		//label: `Source IP: ${srcIP(d)}\nDestination IP: ${dstIP(
 		//	d
 		//)}\nSize: ${pktSize(d)} bytes`,

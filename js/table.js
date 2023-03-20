@@ -1,5 +1,5 @@
 // function for create table
-export function tabulate(data, columns, scatter_svg) {
+export function tabulate(data, columns, scatter_svg, bar_svg) {
 	const table = d3.select("#table").append("table").attr("id", "added_table");
 	const thead = table.append("thead");
 	const tbody = table.append("tbody");
