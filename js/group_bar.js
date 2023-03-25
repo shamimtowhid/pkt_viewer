@@ -14,7 +14,7 @@ const svg_height =
 const average = (arr) => arr.reduce((p, c) => p + c, 0) / arr.length;
 
 // preparing qdepth and duration data
-const preapre_data = (data) => {
+const prepare_data = (data) => {
 	let s1_depth = [];
 	let s2_depth = [];
 	let s3_depth = [];
@@ -25,7 +25,7 @@ const preapre_data = (data) => {
 	// let max_depth = -1; // lowest possible value is 0
 	// let min_duration = 99999999; //highest possible value is 2707270
 	// let max_duration = 0; // lowest possible value is 116
-
+	//console.log(data.length);
 	for (let i = 0; i < data.length; i++) {
 		const tmp_data = data[i];
 		for (let j = 0; j < tmp_data.swtraces.length; j++) {
@@ -86,16 +86,26 @@ const preapre_data = (data) => {
 // 	];
 // };
 
+// append the svg object to the division for bar plot
+const bar_svg = d3
+	.select("#bar")
+	.append("svg")
+	.attr("id", "bar_svg")
+	.attr("width", svg_width + margin.left + margin.right)
+	.attr("height", svg_height + margin.top + margin.bottom)
+	.append("g")
+	.attr("class", "bar_g")
+	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+const grid = bar_svg.append("g").attr("class", "bar_g");
+const yAxis = bar_svg.append("g").attr("class", "bar_g");
+const xAxis = bar_svg
+	.append("g")
+	.attr("class", "bar_g")
+	.attr("transform", "translate(0," + svg_height + ")");
+
 export function bar_plot(data) {
-	// append the svg object to the division for bar plot
-	const bar_svg = d3
-		.select("#bar")
-		.append("svg")
-		.attr("width", svg_width + margin.left + margin.right)
-		.attr("height", svg_height + margin.top + margin.bottom)
-		.append("g")
-		.attr("class", "bar_g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	d3.selectAll(".bar_rect").remove();
 
 	const [
 		s1_qdepth,
@@ -108,7 +118,7 @@ export function bar_plot(data) {
 		s3_duration,
 		min_duration,
 		max_duration,
-	] = preapre_data(data);
+	] = prepare_data(data);
 
 	const plot_data = [
 		{
@@ -154,18 +164,9 @@ export function bar_plot(data) {
 		.tickFormat("")
 		.ticks(5);
 
-	bar_svg.append("g").attr("class", "bar_g").call(yAxisGrid);
-
-	bar_svg
-		.append("g")
-		.attr("class", "bar_g")
-		.call(d3.axisLeft(y).tickSize(-svg_width).ticks(5));
-
-	bar_svg
-		.append("g")
-		.attr("class", "bar_g")
-		.attr("transform", "translate(0," + svg_height + ")")
-		.call(d3.axisBottom(x).tickSize(0));
+	grid.call(yAxisGrid);
+	yAxis.call(d3.axisLeft(y).tickSize(-svg_width).ticks(5));
+	xAxis.call(d3.axisBottom(x).tickSize(0));
 
 	// Another scale for subgroup position
 	var xSubgroup = d3
@@ -182,7 +183,7 @@ export function bar_plot(data) {
 
 	const min_bar_height = 3; // pixels
 	// Show the bars
-	bar_svg
+	const u = bar_svg
 		.append("g")
 		.attr("class", "bar_g")
 		.selectAll(".bar_g")
@@ -198,9 +199,12 @@ export function bar_plot(data) {
 			return subgroups.map(function (key) {
 				return { key: key, value: d[key], group: d["group"] };
 			});
-		})
-		.enter()
-		.append("rect")
+		});
+
+	u.join("rect")
+		//.append("rect")
+		.attr("class", "bar_rect")
+		//.merge(u)
 		.attr("x", function (d) {
 			return xSubgroup(d.key);
 		})
@@ -218,6 +222,8 @@ export function bar_plot(data) {
 			}
 		})
 		.attr("width", xSubgroup.bandwidth())
+		.transition()
+		.duration(500)
 		.attr("height", function (d) {
 			if (d.group === "Normalized queue depth") {
 				return Math.max(

@@ -32,7 +32,7 @@ const main = async () => {
 	const [scatter_svg, circles] = scatter_plot(parsedData);
 
 	// bar plot
-	const bar_svg = bar_plot(circles.data());
+	let bar_svg = bar_plot(circles.data());
 	// topology plot
 
 	// adding brush activity to scatter_svg
@@ -69,6 +69,9 @@ const main = async () => {
 		// generate table based on the selected circles
 		if (value.size > 0) {
 			d3.select("#added_table").remove();
+			d3.selectAll(".bar_rect").remove();
+			//console.log(Array.from(value));
+			bar_svg = bar_plot(Array.from(value));
 			d3.select("#table_msg").text(
 				`Number of selected packet: ${value.size}`
 			);
