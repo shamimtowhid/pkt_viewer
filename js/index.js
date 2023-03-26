@@ -35,6 +35,33 @@ const main = async () => {
 	let bar_svg = bar_plot(circles.data());
 	// topology plot
 
+	// adding legend (checkbox event)
+	const checkbox = d3
+		.selectAll("input[type='checkbox'][name='host']")
+		.on("change", function () {
+			// remove the added_table/table message/selected circle and brush selection box if there is any
+			d3.selectAll("#added_table").remove();
+			d3.selectAll("#large_circle").remove();
+			d3.select("#table_msg").text("No packet is selected");
+			d3.select("#brush").call(d3.brush().move, null);
+
+			let selected = this.value;
+			const display = this.checked ? "inline" : "none";
+			const selected_circles = circles
+				//.selectAll(".dot")
+				.filter((d) => {
+					return selected == d.destination_ip;
+				});
+
+			selected_circles.attr("display", display);
+
+			const visible_circles = d3.selectAll(".dot").filter(function () {
+				return this.getAttribute("display") === "inline";
+			});
+
+			bar_svg = bar_plot(visible_circles.data());
+		});
+
 	// adding brush activity to scatter_svg
 	// the "on" method takes two parameters: typenames and listener
 	// typenames define when to call the listener function
@@ -48,7 +75,7 @@ const main = async () => {
 		const value = new Set();
 		// removing all the large circles resulted from previous selection operation
 		d3.selectAll("#large_circle").remove();
-
+		let visible_circles = 0;
 		if (selection) {
 			const [[x0, y0], [x1, y1]] = selection;
 			circles
@@ -62,14 +89,20 @@ const main = async () => {
 					}
 				});
 		} else {
+			console.log("deselect");
 			// when clicked on the svg without selection
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected
+			// draw bar plot based on visible circles
+			visible_circles = d3.selectAll(".dot").filter(function () {
+				return this.getAttribute("display") === "inline";
+			});
+			//console.log(visible_circles.data());
+			//bar_svg = bar_plot(visible_circles.data());
 		}
 		// generate table based on the selected circles
 		if (value.size > 0) {
 			d3.select("#added_table").remove();
-			d3.selectAll(".bar_rect").remove();
 			//console.log(Array.from(value));
 			bar_svg = bar_plot(Array.from(value));
 			d3.select("#table_msg").text(
@@ -85,6 +118,11 @@ const main = async () => {
 		} else {
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected
+			if (visible_circles === 0) {
+				bar_svg = bar_plot(Array.from(value));
+			} else {
+				bar_svg = bar_plot(visible_circles.data());
+			}
 		}
 	}
 };

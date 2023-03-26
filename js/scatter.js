@@ -126,24 +126,5 @@ export function scatter_plot(parsedData) {
 
 	// Create the range slider
 
-	// adding legend (checkbox event)
-	const checkbox = d3
-		.selectAll("input[type='checkbox'][name='host']")
-		.on("change", function () {
-			// remove the added_table/table message/selected circle and brush selection box if there is any
-			d3.selectAll("#added_table").remove();
-			d3.selectAll("#large_circle").remove();
-			d3.select("#table_msg").text("No packet is selected");
-			d3.select("#brush").call(d3.brush().move, null);
-
-			let selected = this.value;
-			const display = this.checked ? "inline" : "none";
-			circles
-				//.selectAll(".dot")
-				.filter((d) => {
-					return selected == d.destination_ip;
-				})
-				.attr("display", display);
-		});
 	return [scatter_svg, circles];
 }

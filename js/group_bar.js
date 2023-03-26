@@ -11,7 +11,7 @@ const svg_width =
 const svg_height =
 	d3.select("#bar").node().offsetHeight - margin.top - margin.bottom;
 
-const average = (arr) => arr.reduce((p, c) => p + c, 0) / arr.length;
+const average = (arr) => arr.reduce((p, c) => p + c, 0) / (arr.length || 1);
 
 // preparing qdepth and duration data
 const prepare_data = (data) => {
@@ -41,6 +41,7 @@ const prepare_data = (data) => {
 			}
 		}
 	}
+	//console.log(data);
 	return [
 		average(s1_depth),
 		average(s2_depth),
@@ -106,8 +107,8 @@ const xAxis = bar_svg
 
 export function bar_plot(data) {
 	d3.selectAll(".bar_rect").remove();
-
-	const [
+	console.log(data);
+	let [
 		s1_qdepth,
 		s2_qdepth,
 		s3_qdepth,
@@ -119,6 +120,12 @@ export function bar_plot(data) {
 		min_duration,
 		max_duration,
 	] = prepare_data(data);
+
+	// sanitization
+	min_depth = isNaN(min_depth) ? 0 : min_depth;
+	max_depth = isNaN(max_depth) ? 0 : max_depth;
+	min_duration = isNaN(min_duration) ? 0 : min_duration;
+	max_duration = isNaN(max_duration) ? 0 : max_duration;
 
 	const plot_data = [
 		{
@@ -134,7 +141,7 @@ export function bar_plot(data) {
 			s3: s3_duration,
 		},
 	];
-	//console.log(plot_data);
+	//console.log(min_duration);
 	const subgroups = ["s1", "s2", "s3"];
 	const groups = ["Normalized queue depth", "Normalized packet duration"];
 	// const groups = d3
@@ -154,7 +161,7 @@ export function bar_plot(data) {
 
 	const duration_scale = d3
 		.scaleLinear()
-		.domain([min_depth, max_duration])
+		.domain([min_duration, max_duration])
 		.range([svg_height, 0]);
 
 	var y = d3.scaleLinear().domain([0, 1]).range([svg_height, 0]);
@@ -201,45 +208,65 @@ export function bar_plot(data) {
 			});
 		});
 
-	u.join("rect")
-		//.append("rect")
-		.attr("class", "bar_rect")
-		//.merge(u)
-		.attr("x", function (d) {
-			return xSubgroup(d.key);
-		})
-		.attr("y", function (d) {
-			if (d.group === "Normalized queue depth") {
-				return Math.min(
-					svg_height - min_bar_height,
-					depth_scale(d.value)
-				);
-			} else {
-				return Math.min(
-					svg_height - min_bar_height,
-					duration_scale(d.value)
-				);
-			}
-		})
-		.attr("width", xSubgroup.bandwidth())
-		.transition()
-		.duration(500)
-		.attr("height", function (d) {
-			if (d.group === "Normalized queue depth") {
-				return Math.max(
-					min_bar_height,
-					svg_height - depth_scale(d.value)
-				);
-			} else {
-				return Math.max(
-					min_bar_height,
-					svg_height - duration_scale(d.value)
-				);
-			}
-		})
-		.attr("fill", function (d) {
-			return color(d.key);
-		});
+	if (min_depth == 0 && max_depth == 0) {
+		//console.log(svg_height);
+		//console.log(min_bar_height);
+		u.join("rect")
+			//.append("rect")
+			.attr("class", "bar_rect")
+			//.merge(u)
+			.attr("x", function (d) {
+				return xSubgroup(d.key);
+			})
+			.attr("y", svg_height - min_bar_height)
+			.attr("width", xSubgroup.bandwidth())
+			//.transition()
+			//.duration(500)
+			.attr("height", min_bar_height)
+			.attr("fill", function (d) {
+				return color(d.key);
+			});
+	} else {
+		u.join("rect")
+			//.append("rect")
+			.attr("class", "bar_rect")
+			//.merge(u)
+			.attr("x", function (d) {
+				return xSubgroup(d.key);
+			})
+			.attr("y", function (d) {
+				if (d.group === "Normalized queue depth") {
+					return Math.min(
+						svg_height - min_bar_height,
+						depth_scale(d.value)
+					);
+				} else {
+					return Math.min(
+						svg_height - min_bar_height,
+						duration_scale(d.value)
+					);
+				}
+			})
+			.attr("width", xSubgroup.bandwidth())
+			//.transition()
+			//.duration(500)
+			.attr("height", function (d) {
+				if (d.group === "Normalized queue depth") {
+					return Math.max(
+						min_bar_height,
+						svg_height - depth_scale(d.value)
+					);
+				} else {
+					return Math.max(
+						min_bar_height,
+						svg_height - duration_scale(d.value)
+					);
+				}
+			})
+			.attr("fill", function (d) {
+				return color(d.key);
+			});
+	}
 
 	return bar_svg;
 }
