@@ -1,4 +1,5 @@
 import { bar_plot } from "./group_bar.js";
+import { update_link } from "./topology.js";
 
 // function for create table
 export function tabulate(data, columns, scatter_svg, color_scale, nodes) {
@@ -31,6 +32,7 @@ export function tabulate(data, columns, scatter_svg, color_scale, nodes) {
 				d3.select(this).classed("highlight", false);
 				d3.selectAll("#large_circle").remove();
 				bar_plot(Array.from(data), nodes);
+				update_link(Array.from(data));
 			} else {
 				// click on a non-highlighted row
 				// Remove "highlight" class from all rows and circles with id large_circle
@@ -55,6 +57,7 @@ export function tabulate(data, columns, scatter_svg, color_scale, nodes) {
 					);
 
 				bar_plot(data_point, nodes);
+				update_link(data_point);
 			}
 		});
 

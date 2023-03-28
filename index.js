@@ -1,7 +1,7 @@
 import { scatter_plot } from "./js/scatter.js";
 import { bar_plot } from "./js/group_bar.js";
 import { tabulate } from "./js/table.js";
-import { draw_topology } from "./js/topology.js";
+import { draw_topology, update_link } from "./js/topology.js";
 
 const jsonUrl = [
 	"https://gist.githubusercontent.com/",
@@ -21,12 +21,12 @@ const main = async () => {
 		return +a.send_time - +b.send_time;
 	});
 
-	// topology
-	const [nodes, links] = draw_topology();
-
 	// scatter plot
 	const [scatter_svg, circles, brushArea, color_scale] =
 		scatter_plot(parsedData);
+
+	// topology
+	const nodes = draw_topology(circles.data());
 
 	// bar plot
 	bar_plot(circles.data(), nodes);
@@ -56,6 +56,7 @@ const main = async () => {
 			});
 
 			bar_plot(visible_circles.data(), nodes);
+			update_link(visible_circles.data());
 		}
 	);
 
@@ -99,6 +100,7 @@ const main = async () => {
 		if (value.size > 0) {
 			d3.select("#added_table").remove();
 			bar_plot(Array.from(value), nodes);
+			update_link(Array.from(value));
 			d3.select("#table_msg").text(
 				`Number of selected packet: ${value.size}`
 			);
@@ -114,8 +116,10 @@ const main = async () => {
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected
 			if (visible_circles === 0) {
 				bar_plot(Array.from(value), nodes);
+				update_link(Array.from(value));
 			} else {
 				bar_plot(visible_circles.data(), nodes);
+				update_link(visible_circles.data());
 			}
 		}
 	}

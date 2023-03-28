@@ -29,14 +29,22 @@ full_svg
 	.text("Network Topology")
 	.style("fill", "black");
 
-export function draw_topology() {
+export function draw_topology(pckt_data) {
 	// Initialize the links
 	const link = topo_svg
 		.selectAll("line")
 		.data(data.links)
 		.enter()
 		.append("line")
-		.style("stroke", "#aaa");
+		.attr("class", "nodelink")
+		.attr("source", function (d) {
+			return d.source;
+		})
+		.attr("target", function (d) {
+			return d.target;
+		})
+		.style("stroke", "black")
+		.style("stroke-width", 1);
 
 	let sw_names = [];
 	for (let i = 0; i < data.nodes; i++) {
@@ -68,7 +76,7 @@ export function draw_topology() {
 				.distance(100)
 				.links(data.links) // and this the list of links
 		)
-		.force("charge", d3.forceManyBody().strength(-50)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+		.force("charge", d3.forceManyBody().strength(-60)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
 		.force("center", d3.forceCenter(width / 2, height / 2)) // This force attracts nodes to the center of the svg area
 		.on("end", ticked);
 
@@ -94,5 +102,68 @@ export function draw_topology() {
 		});
 	}
 
-	return [data.nodes, data.links];
+	update_link(pckt_data);
+	// console.log(data.links);
+	// let linktoupdate = d3.select("line.nodelink[source='0'][target='2']");
+	// linktoupdate.style("stroke-width", 10);
+	return data.nodes;
+}
+
+export function update_link(pckt_data) {
+	d3.selectAll("line.nodelink").style("stroke-width", 1);
+	// pckt_data is an array
+	let counter = {};
+	let min_val = 0,
+		max_val = 0;
+	for (let i = 0; i < pckt_data.length; i++) {
+		const tmp_data = pckt_data[i];
+		let tmp_path = [];
+		for (let j = 0; j < tmp_data.swtraces.length; j++) {
+			tmp_path.push(tmp_data.swtraces[j].sw_id);
+		}
+		for (let k = 0; k < tmp_path.length - 1; k++) {
+			let key = tmp_path[k].toString() + "_" + tmp_path[k + 1].toString();
+			let rev_key =
+				tmp_path[k + 1].toString() + "_" + tmp_path[k].toString();
+
+			// counter[key] = isNaN(counter[key]) ? isNaN(counter[rev_key]) ? : counter[key] + 1;
+			if (isNaN(counter[key]) && isNaN(counter[rev_key])) {
+				counter[key] = 1;
+
+				if (counter[key] > max_val) {
+					max_val = counter[key];
+				}
+			} else {
+				if (isNaN(counter[key])) {
+					counter[rev_key] = counter[rev_key] + 1;
+
+					if (counter[rev_key] > max_val) {
+						max_val = counter[rev_key];
+					}
+				} else {
+					counter[key] = counter[key] + 1;
+
+					if (counter[key] > max_val) {
+						max_val = counter[key];
+					}
+				}
+			}
+		}
+	}
+	console.log(counter);
+	const scale = d3.scaleLinear().domain([min_val, max_val]).range([1, 10]);
+	if (min_val == 0 && max_val == 0) {
+		d3.selectAll("line.nodelink").style("stroke-width", 1);
+	} else {
+		for (const [key, value] of Object.entries(counter)) {
+			const [source, target] = key.split("_");
+			d3.select(
+				`line.nodelink[source='${source}'][target='${target}']`
+			).style("stroke-width", scale(value));
+			// for bi directional link
+			d3.select(
+				`line.nodelink[source='${target}'][target='${source}']`
+			).style("stroke-width", scale(value));
+		}
+	}
 }
