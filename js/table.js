@@ -1,5 +1,7 @@
+import { bar_plot } from "./group_bar.js";
+
 // function for create table
-export function tabulate(data, columns, scatter_svg, bar_svg) {
+export function tabulate(data, columns, scatter_svg, color_scale, nodes) {
 	const table = d3.select("#table").append("table").attr("id", "added_table");
 	const thead = table.append("thead");
 	const tbody = table.append("tbody");
@@ -25,16 +27,18 @@ export function tabulate(data, columns, scatter_svg, bar_svg) {
 			const highlighted = d3.select(this).classed("highlight");
 
 			if (highlighted) {
+				// click on a highlighted row
 				d3.select(this).classed("highlight", false);
 				d3.selectAll("#large_circle").remove();
+				bar_plot(Array.from(data), nodes);
 			} else {
+				// click on a non-highlighted row
 				// Remove "highlight" class from all rows and circles with id large_circle
 				d3.selectAll("tr").classed("highlight", false);
 				d3.selectAll("#large_circle").remove();
 				// Add highlight class to this row.
 				d3.select(this).classed("highlight", true);
-				const data_point = d3.select(this).data(); //TODO: draw a new circle with this data
-				//console.log(data_point[0]["x"]);
+				const data_point = d3.select(this).data();
 				scatter_svg
 					.append("circle")
 					// .attr("class", "dot")
@@ -45,7 +49,12 @@ export function tabulate(data, columns, scatter_svg, bar_svg) {
 					.attr("stroke", "#000")
 					.attr("stroke-width", 2)
 					.attr("display", "inline")
-					.style("fill", data_point[0]["color"]);
+					.style(
+						"fill",
+						color_scale(data_point[0]["destination_ip"])
+					);
+
+				bar_plot(data_point, nodes);
 			}
 		});
 

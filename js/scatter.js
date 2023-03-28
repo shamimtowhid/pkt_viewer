@@ -1,13 +1,20 @@
-const scatter_height =
-	d3.select("#scatter").node().offsetHeight -
-	d3.select("#label_h1").node().offsetHeight;
+const scatter_height = d3.select("#scatter").node().offsetHeight; //-
+//d3.select("#label_h1").node().offsetHeight;
 
 const scatter_width = d3.select("#scatter").node().offsetWidth;
 
+const unique_dst_ip = new Set();
+
 // preparing X data
 const xValue = (d) => {
-	const ts1 = 1675921681.915128;
-	return d.send_time - ts1; // return difference between two timestamp in seconds
+	// const ts1 = 1675921681.915128;
+	unique_dst_ip.add(d.dst_ip);
+
+	if (d.send_time === ts1) {
+		return 1;
+	} else {
+		return d.send_time - ts1; // return difference between two timestamp in seconds
+	}
 };
 
 // preparing Y data
@@ -25,14 +32,18 @@ const pktSize = (d) => d.pkt_size_byte;
 const swtrace = (d) => d.swtraces;
 
 const scatter_margin = {
-	top: 10,
-	right: 80,
-	bottom: 80,
-	left: 80,
+	top: 50,
+	right: 50,
+	bottom: 100,
+	left: 100,
 };
 const radius = 3;
+let ts1, ts2;
+const color_list = ["#1b9e77", "#d95f02", "#7570b3"];
 
 export function scatter_plot(parsedData) {
+	ts1 = parsedData[0].send_time;
+	ts2 = parsedData[parsedData.length - 1].send_time;
 	const x = d3
 		.scaleLinear()
 		.domain(d3.extent(parsedData, xValue))
@@ -50,15 +61,10 @@ export function scatter_plot(parsedData) {
 		.range([scatter_height - scatter_margin.bottom, scatter_margin.top]) // this range is flipped because origin is at upper left corner
 		.nice();
 
-	const color_scale = d3
-		.scaleOrdinal()
-		.domain(d3.extent(parsedData, dstIP))
-		.range(["#1b9e77", "#d95f02", "#7570b3"]); // color is selected by using colorbrewer2
-
 	const marks = parsedData.map((d) => ({
 		x: x(xValue(d)),
 		y: y(yValue(d)),
-		color: color_scale(dstIP(d)),
+		// color: color_scale(dstIP(d)),
 		destination_ip: dstIP(d),
 		source_ip: srcIP(d),
 		size_in_bytes: pktSize(d),
@@ -67,6 +73,16 @@ export function scatter_plot(parsedData) {
 		//	d
 		//)}\nSize: ${pktSize(d)} bytes`,
 	}));
+
+	const color_values =
+		unique_dst_ip.size <= 3
+			? color_list.slice(0, unique_dst_ip.size)
+			: [color_list[0]];
+
+	const color_scale = d3
+		.scaleOrdinal()
+		.domain(d3.extent(parsedData, dstIP))
+		.range(color_values); // color is selected by using colorbrewer2
 
 	const scatter_svg = d3
 		.select("#scatter")
@@ -83,7 +99,7 @@ export function scatter_plot(parsedData) {
 		.attr("cy", (d) => d.y)
 		.attr("r", radius)
 		.attr("display", "inline")
-		.style("fill", (d) => d.color);
+		.style("fill", (d) => color_scale(d.destination_ip));
 
 	// adding the X and Y axis
 	scatter_svg
@@ -100,9 +116,10 @@ export function scatter_plot(parsedData) {
 		.attr("font-size", "20px")
 		// .attr("style", "font-weight: bold")
 		.attr("x", -scatter_height / 2 + 30)
-		.attr("y", 30)
+		.attr("y", 20)
 		.attr("transform", "rotate(-90)")
-		.text("Queue Depth (avg.)");
+		.text("Queue Depth (avg.)")
+		.style("fill", "grey");
 
 	scatter_svg
 		.append("g")
@@ -121,10 +138,69 @@ export function scatter_plot(parsedData) {
 		.attr("font-size", "20px")
 		// .attr("style", "font-weight: bold")
 		.attr("x", scatter_width / 2)
-		.attr("y", scatter_height - 30)
-		.text("Time (second)");
+		.attr("y", scatter_height - 15)
+		.text("Time (second)")
+		.style("fill", "grey");
 
 	// Create the range slider
 
-	return [scatter_svg, circles];
+	// calculate brushable area
+	const brushArea = [
+		[scatter_margin.left - 10, scatter_margin.top - 10],
+		[
+			scatter_width - (scatter_margin.right - 10),
+			scatter_height - (scatter_margin.bottom - 10),
+		],
+	];
+
+	// add legends with checkbox
+	if (unique_dst_ip.size <= 3) {
+		addLegend(scatter_svg, color_scale);
+	}
+
+	// add human readbale date and time
+	const date_text =
+		"From: " +
+		new Date(ts1 * 1000).toLocaleString() +
+		"\tTo: " +
+		new Date(ts2 * 1000).toLocaleString();
+	scatter_svg
+		.append("text")
+		.attr("class", "larger")
+		.attr("x", scatter_margin.left + 3 * 100 + 50)
+		.attr("y", 25)
+		.text(date_text)
+		.attr("font-size", "20");
+
+	return [scatter_svg, circles, brushArea, color_scale];
+}
+
+function addLegend(scatter_svg, color_scale) {
+	// console.log(nodes);
+	// create legends with checkbox
+	const host_list = Array.from(unique_dst_ip).sort();
+	for (let i = 0; i < host_list.length; i++) {
+		let label = "Host" + (i + 1).toString();
+
+		scatter_svg
+			.append("foreignObject")
+			.attr("class", "checkbox")
+			.attr("x", scatter_margin.left + i * 100)
+			.attr("y", 5)
+			.attr("width", 30)
+			.attr("height", 30)
+			.style("accent-color", color_scale(host_list[i]))
+			.html(
+				`<input name='host' class='larger' value=${host_list[i]} type='checkbox' checked >`
+			);
+
+		scatter_svg
+			.append("text")
+			.attr("class", "larger")
+			.attr("x", scatter_margin.left + i * 100 + 30)
+			.attr("y", 25)
+			.text(label)
+			.attr("fill", color_scale(host_list[i]))
+			.attr("font-size", "20");
+	}
 }

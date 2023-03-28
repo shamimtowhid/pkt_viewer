@@ -24,7 +24,16 @@ body {
 
 .tick text {
 	font-size: 20px;
-	/* color: white; */
+	fill: grey;
+}
+
+.tick line {
+	font-size: 20px;
+	stroke: grey;
+}
+
+.domain {
+	stroke: grey;
 }
 
 .dot {
@@ -36,44 +45,6 @@ body {
 	width: 20px;
 	height: 20px;
 }
-
-/* #slider-container {
-	position: relative;
-	top: 360px;
-}
-
-#range-label {
-	position: relative;
-	top: 390px;
-}
-*/
-#label_h1 {
-	color: #1b9e77;
-	accent-color: #1b9e77;
-	font-size: 20px;
-	margin-left: 80px;
-}
-
-#label_h2 {
-	color: #7570b3;
-	accent-color: #7570b3;
-	position: relative;
-	left: 50px;
-	font-size: 20px;
-}
-
-#label_h3 {
-	color: #d95f02;
-	accent-color: #d95f02;
-	position: relative;
-	left: 100px;
-	font-size: 20px;
-}
-
-/* td,
-th {
-	padding: 1px 4px;
-} */
 
 th {
 	position: sticky;
@@ -109,23 +80,3 @@ th {
 .bar_g line {
 	stroke: #def;
 }
-
-/* #host1 {
-	accent-color: #1b9e77;
-}
-
-#host2 {
-	accent-color: #7570b3;
-	position: relative;
-	left: 10px;
-}
-
-#host3 {
-	accent-color: #d95f02;
-} */
-
-/* #legend {
-	position: relative;
-	left: 250px;
-	top: 100px;
-} */

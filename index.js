@@ -1,9 +1,7 @@
-import { scatter_plot } from "./scatter.js";
-import { bar_plot } from "./group_bar.js";
-import { tabulate } from "./table.js";
-
-//const width = window.innerWidth;
-//const height = window.innerHeight;
+import { scatter_plot } from "./js/scatter.js";
+import { bar_plot } from "./js/group_bar.js";
+import { tabulate } from "./js/table.js";
+import { draw_topology } from "./js/topology.js";
 
 const jsonUrl = [
 	"https://gist.githubusercontent.com/",
@@ -13,32 +11,30 @@ const jsonUrl = [
 	"network_data.json",
 ].join("");
 
-// converting string data to float
-const parseObject = (d) => {
-	d.rcv_time = +d.rcv_time;
-	d.send_time = +d.send_time;
-	return d;
-};
-
 // downloading data and create plots
 const main = async () => {
 	const data = await d3.json(jsonUrl).catch((error) => {
 		console.error(error);
 	});
 
-	const parsedData = data.map(parseObject);
+	const parsedData = data.sort(function (a, b) {
+		return +a.send_time - +b.send_time;
+	});
+
+	// topology
+	const [nodes, links] = draw_topology();
 
 	// scatter plot
-	const [scatter_svg, circles] = scatter_plot(parsedData);
+	const [scatter_svg, circles, brushArea, color_scale] =
+		scatter_plot(parsedData);
 
 	// bar plot
-	let bar_svg = bar_plot(circles.data());
-	// topology plot
+	bar_plot(circles.data(), nodes);
 
 	// adding legend (checkbox event)
-	const checkbox = d3
-		.selectAll("input[type='checkbox'][name='host']")
-		.on("change", function () {
+	d3.selectAll("input[type='checkbox'][name='host']").on(
+		"change",
+		function () {
 			// remove the added_table/table message/selected circle and brush selection box if there is any
 			d3.selectAll("#added_table").remove();
 			d3.selectAll("#large_circle").remove();
@@ -59,15 +55,17 @@ const main = async () => {
 				return this.getAttribute("display") === "inline";
 			});
 
-			bar_svg = bar_plot(visible_circles.data());
-		});
+			bar_plot(visible_circles.data(), nodes);
+		}
+	);
 
 	// adding brush activity to scatter_svg
 	// the "on" method takes two parameters: typenames and listener
 	// typenames define when to call the listener function
 	// listener function defines what to do
 	// example typenames: "start brush end"
-	const brush = d3.brush().on("end", brushed);
+	const brush = d3.brush().extent(brushArea).on("end", brushed);
+
 	scatter_svg.append("g").attr("id", "brush").call(brush);
 
 	function brushed({ selection }) {
@@ -89,7 +87,6 @@ const main = async () => {
 					}
 				});
 		} else {
-			console.log("deselect");
 			// when clicked on the svg without selection
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected
@@ -97,14 +94,11 @@ const main = async () => {
 			visible_circles = d3.selectAll(".dot").filter(function () {
 				return this.getAttribute("display") === "inline";
 			});
-			//console.log(visible_circles.data());
-			//bar_svg = bar_plot(visible_circles.data());
 		}
 		// generate table based on the selected circles
 		if (value.size > 0) {
 			d3.select("#added_table").remove();
-			//console.log(Array.from(value));
-			bar_svg = bar_plot(Array.from(value));
+			bar_plot(Array.from(value), nodes);
 			d3.select("#table_msg").text(
 				`Number of selected packet: ${value.size}`
 			);
@@ -112,16 +106,16 @@ const main = async () => {
 				value,
 				["source_ip", "destination_ip", "size_in_bytes"],
 				scatter_svg,
-				bar_svg
+				color_scale,
+				nodes
 			);
-			//console.log(value);
 		} else {
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected
 			if (visible_circles === 0) {
-				bar_svg = bar_plot(Array.from(value));
+				bar_plot(Array.from(value), nodes);
 			} else {
-				bar_svg = bar_plot(visible_circles.data());
+				bar_plot(visible_circles.data(), nodes);
 			}
 		}
 	}

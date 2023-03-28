@@ -1,9 +1,9 @@
 // set the dimensions and margins of the graph
 const margin = {
-	top: d3.select("#label_h1").node().offsetHeight + 10,
-	right: 30,
-	bottom: 20,
-	left: 50,
+	top: 50,
+	right: 50,
+	bottom: 100,
+	left: 100,
 };
 
 const svg_width =
@@ -14,86 +14,77 @@ const svg_height =
 const average = (arr) => arr.reduce((p, c) => p + c, 0) / (arr.length || 1);
 
 // preparing qdepth and duration data
-const prepare_data = (data) => {
-	let s1_depth = [];
-	let s2_depth = [];
-	let s3_depth = [];
-	let s1_duration = [];
-	let s2_duration = [];
-	let s3_duration = [];
-	// let min_depth = 100; // highest possible value is 63
-	// let max_depth = -1; // lowest possible value is 0
-	// let min_duration = 99999999; //highest possible value is 2707270
-	// let max_duration = 0; // lowest possible value is 116
-	//console.log(data.length);
+const prepare_data = (data, nodes) => {
+	let extracted_depth = { group: "Normalized queue depth" };
+	let extracted_duration = { group: "Normalized packet duration" };
+	let sw_names = [];
+	for (let i = 0; i < nodes.length; i++) {
+		extracted_depth["sw_" + nodes[i].id.toString()] = [];
+		extracted_duration["sw_" + nodes[i].id.toString()] = [];
+		sw_names.push(nodes[i].name);
+	}
+
 	for (let i = 0; i < data.length; i++) {
 		const tmp_data = data[i];
 		for (let j = 0; j < tmp_data.swtraces.length; j++) {
-			if (tmp_data.swtraces[j].sw_id === 0) {
-				s1_depth.push(tmp_data.swtraces[j].qdepth);
-				s1_duration.push(tmp_data.swtraces[j].duration);
-			} else if (tmp_data.swtraces[j].sw_id === 1) {
-				s2_depth.push(tmp_data.swtraces[j].qdepth);
-				s2_duration.push(tmp_data.swtraces[j].duration);
-			} else {
-				s3_depth.push(tmp_data.swtraces[j].qdepth);
-				s3_duration.push(tmp_data.swtraces[j].duration);
-			}
+			extracted_depth["sw_" + tmp_data.swtraces[j].sw_id.toString()].push(
+				tmp_data.swtraces[j].qdepth
+			);
+			extracted_duration[
+				"sw_" + tmp_data.swtraces[j].sw_id.toString()
+			].push(tmp_data.swtraces[j].duration);
 		}
 	}
-	//console.log(data);
+	let min_depth = [];
+	let max_depth = [];
+	let min_duration = [];
+	let max_duration = [];
+	for (let i = 0; i < nodes.length; i++) {
+		const avg_depth = average(
+			extracted_depth["sw_" + nodes[i].id.toString()]
+		);
+
+		const avg_duration =
+			average(extracted_duration["sw_" + nodes[i].id.toString()]) * 0.001;
+
+		min_depth.push(d3.min(extracted_depth["sw_" + nodes[i].id.toString()]));
+		max_depth.push(d3.max(extracted_depth["sw_" + nodes[i].id.toString()]));
+
+		min_duration.push(
+			d3.min(extracted_duration["sw_" + nodes[i].id.toString()])
+		);
+		max_duration.push(
+			d3.max(extracted_duration["sw_" + nodes[i].id.toString()])
+		);
+
+		extracted_depth["sw_" + nodes[i].id.toString()] = isNaN(avg_depth)
+			? 0
+			: avg_depth;
+
+		extracted_duration["sw_" + nodes[i].id.toString()] = isNaN(avg_duration)
+			? 0
+			: avg_duration;
+	}
+
 	return [
-		average(s1_depth),
-		average(s2_depth),
-		average(s3_depth),
-		d3.min([d3.min(s1_depth), d3.min(s2_depth), d3.min(s3_depth)]),
-		d3.max([d3.max(s1_depth), d3.max(s2_depth), d3.max(s3_depth)]),
-		average(s1_duration) * 0.001,
-		average(s2_duration) * 0.001,
-		average(s3_duration) * 0.001,
-		d3.min([
-			d3.min(s1_duration),
-			d3.min(s2_duration),
-			d3.min(s3_duration),
-		]) * 0.001,
-		d3.max([
-			d3.max(s1_duration),
-			d3.max(s2_duration),
-			d3.max(s3_duration),
-		]) * 0.001,
+		[extracted_depth, extracted_duration],
+		isNaN(d3.min(min_depth)) ? 0 : d3.min(min_depth),
+		isNaN(d3.max(max_depth)) ? 0 : d3.max(max_depth),
+		isNaN(d3.min(min_duration)) ? 0 : d3.min(min_duration) * 0.001,
+		isNaN(d3.max(max_duration)) ? 0 : d3.max(max_duration) * 0.001,
+		sw_names,
 	];
 };
 
-// preparing duration data
-// const duration = (data) => {
-// 	let s1_duration = [];
-// 	let s2_duration = [];
-// 	let s3_duration = [];
-
-// 	for (let i = 0; i < data.swtraces.length; i++) {
-// 		if (data.swtraces[i].sw_id === 0) {
-// 			s1_duration.push(data.swtraces[i].duration);
-// 		} else if (data.swtraces[i].sw_id === 1) {
-// 			s2_duration.push(data.swtraces[i].duration);
-// 		} else {
-// 			s3_duration.push(data.swtraces[i].duration);
-// 		}
-// 	}
-// 	//converting to millisecond
-// 	return [
-// 		average(s1_duration) * 0.001,
-// 		average(s2_duration) * 0.001,
-// 		average(s3_duration) * 0.001,
-// 	];
-// };
-
 // append the svg object to the division for bar plot
-const bar_svg = d3
+const full_svg = d3
 	.select("#bar")
 	.append("svg")
 	.attr("id", "bar_svg")
 	.attr("width", svg_width + margin.left + margin.right)
-	.attr("height", svg_height + margin.top + margin.bottom)
+	.attr("height", svg_height + margin.top + margin.bottom);
+
+const bar_svg = full_svg
 	.append("g")
 	.attr("class", "bar_g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -105,51 +96,38 @@ const xAxis = bar_svg
 	.attr("class", "bar_g")
 	.attr("transform", "translate(0," + svg_height + ")");
 
-export function bar_plot(data) {
+// Add x-axis label
+// full_svg
+// 	.append("text")
+// 	.attr("text-anchor", "middle")
+// 	.attr("font-size", "20px")
+// 	// .attr("style", "font-weight: bold")
+// 	.attr("x", (svg_width + margin.left + margin.right) / 2)
+// 	.attr("y", svg_height + margin.top + margin.bottom - 15)
+// 	.text("Router Information")
+// 	.style("fill", "grey");
+
+export function bar_plot(data, nodes) {
 	d3.selectAll(".bar_rect").remove();
-	console.log(data);
+	d3.selectAll(".legend_element").remove();
+
 	let [
-		s1_qdepth,
-		s2_qdepth,
-		s3_qdepth,
+		plot_data,
 		min_depth,
 		max_depth,
-		s1_duration,
-		s2_duration,
-		s3_duration,
 		min_duration,
 		max_duration,
-	] = prepare_data(data);
+		subgroups,
+	] = prepare_data(data, nodes);
 
-	// sanitization
-	min_depth = isNaN(min_depth) ? 0 : min_depth;
-	max_depth = isNaN(max_depth) ? 0 : max_depth;
-	min_duration = isNaN(min_duration) ? 0 : min_duration;
-	max_duration = isNaN(max_duration) ? 0 : max_duration;
+	// console.log(plot_data);
+	// console.log(min_depth);
+	// console.log(max_depth);
+	// console.log(min_duration);
+	// console.log(max_duration);
+	// console.log(subgroups);
 
-	const plot_data = [
-		{
-			group: "Normalized queue depth",
-			s1: s1_qdepth,
-			s2: s2_qdepth,
-			s3: s3_qdepth,
-		},
-		{
-			group: "Normalized packet duration",
-			s1: s1_duration,
-			s2: s2_duration,
-			s3: s3_duration,
-		},
-	];
-	//console.log(min_duration);
-	const subgroups = ["s1", "s2", "s3"];
 	const groups = ["Normalized queue depth", "Normalized packet duration"];
-	// const groups = d3
-	// 	.map(plot_data, function (d) {
-	// 		return d.group;
-	// 	})
-	// 	.keys();
-	// Add X axis
 
 	var x = d3.scaleBand().domain(groups).range([0, svg_width]).padding([0.2]);
 
@@ -183,10 +161,7 @@ export function bar_plot(data) {
 		.padding([0.05]);
 
 	// color palette = one color per subgroup
-	var color = d3
-		.scaleOrdinal()
-		.domain(subgroups)
-		.range(["#e41a1c", "#377eb8", "#4daf4a"]);
+	var color = d3.scaleOrdinal().domain(subgroups).range(d3.schemeSet1);
 
 	const min_bar_height = 3; // pixels
 	// Show the bars
@@ -209,8 +184,6 @@ export function bar_plot(data) {
 		});
 
 	if (min_depth == 0 && max_depth == 0) {
-		//console.log(svg_height);
-		//console.log(min_bar_height);
 		u.join("rect")
 			//.append("rect")
 			.attr("class", "bar_rect")
@@ -268,5 +241,48 @@ export function bar_plot(data) {
 			});
 	}
 
+	add_legends(subgroups, color);
+
 	return bar_svg;
+}
+
+function add_legends(subgroups, color) {
+	const size = 20;
+	// Add one dot in the legend for each name.
+	full_svg
+		.selectAll("#legend")
+		.data(subgroups)
+		.enter()
+		.append("rect")
+		.attr("class", "legend_element")
+		.attr("x", function (d, i) {
+			return margin.left + i * 100;
+		})
+		.attr("y", 5)
+		.attr("width", size)
+		.attr("height", size)
+		.style("fill", function (d) {
+			return color(d);
+		});
+
+	// Add one dot in the legend for each name.
+	full_svg
+		.selectAll("bar_labels")
+		.data(subgroups)
+		.enter()
+		.append("text")
+		.attr("class", "legend_element")
+		.attr("x", function (d, i) {
+			return margin.left + i * 100 + 25;
+		})
+		.attr("y", 15)
+		.style("fill", function (d) {
+			return color(d);
+		})
+		.text(function (d) {
+			return d;
+		})
+		.attr("text-anchor", "left")
+		.attr("font-size", "20px")
+		.style("alignment-baseline", "middle");
 }
