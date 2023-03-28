@@ -2,15 +2,15 @@
 	"nodes": [
 		{
 			"id": 0,
-			"name": "sw_0"
+			"name": "Switch1"
 		},
 		{
 			"id": 1,
-			"name": "sw_1"
+			"name": "Switch2"
 		},
 		{
 			"id": 2,
-			"name": "sw_2"
+			"name": "Switch3"
 		}
 	],
 	"links": [

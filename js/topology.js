@@ -65,9 +65,10 @@ export function draw_topology() {
 				.id(function (d) {
 					return d.id;
 				}) // This provide  the id of a node
+				.distance(100)
 				.links(data.links) // and this the list of links
 		)
-		.force("charge", d3.forceManyBody().strength(-400)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+		.force("charge", d3.forceManyBody().strength(-50)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
 		.force("center", d3.forceCenter(width / 2, height / 2)) // This force attracts nodes to the center of the svg area
 		.on("end", ticked);
 
@@ -87,9 +88,9 @@ export function draw_topology() {
 			});
 
 		node.attr("cx", function (d) {
-			return d.x + 6;
+			return d.x;
 		}).attr("cy", function (d) {
-			return d.y - 6;
+			return d.y;
 		});
 	}
 

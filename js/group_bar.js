@@ -19,19 +19,22 @@ const prepare_data = (data, nodes) => {
 	let extracted_duration = { group: "Normalized packet duration" };
 	let sw_names = [];
 	for (let i = 0; i < nodes.length; i++) {
-		extracted_depth["sw_" + nodes[i].id.toString()] = [];
-		extracted_duration["sw_" + nodes[i].id.toString()] = [];
+		extracted_depth[nodes[i].name] = [];
+		extracted_duration[nodes[i].name] = [];
 		sw_names.push(nodes[i].name);
 	}
 
+	// this function expects the name defined in topology.json in "Switch1" format
+	// and the switch id in the data start from 0
+	// switch id in the topology.json file also starts from 0
 	for (let i = 0; i < data.length; i++) {
 		const tmp_data = data[i];
 		for (let j = 0; j < tmp_data.swtraces.length; j++) {
-			extracted_depth["sw_" + tmp_data.swtraces[j].sw_id.toString()].push(
-				tmp_data.swtraces[j].qdepth
-			);
+			extracted_depth[
+				"Switch" + (tmp_data.swtraces[j].sw_id + 1).toString()
+			].push(tmp_data.swtraces[j].qdepth);
 			extracted_duration[
-				"sw_" + tmp_data.swtraces[j].sw_id.toString()
+				"Switch" + (tmp_data.swtraces[j].sw_id + 1).toString()
 			].push(tmp_data.swtraces[j].duration);
 		}
 	}
@@ -40,28 +43,18 @@ const prepare_data = (data, nodes) => {
 	let min_duration = [];
 	let max_duration = [];
 	for (let i = 0; i < nodes.length; i++) {
-		const avg_depth = average(
-			extracted_depth["sw_" + nodes[i].id.toString()]
-		);
+		const avg_depth = average(extracted_depth[nodes[i].name]);
 
-		const avg_duration =
-			average(extracted_duration["sw_" + nodes[i].id.toString()]) * 0.001;
+		const avg_duration = average(extracted_duration[nodes[i].name]) * 0.001;
 
-		min_depth.push(d3.min(extracted_depth["sw_" + nodes[i].id.toString()]));
-		max_depth.push(d3.max(extracted_depth["sw_" + nodes[i].id.toString()]));
+		min_depth.push(d3.min(extracted_depth[nodes[i].name]));
+		max_depth.push(d3.max(extracted_depth[nodes[i].name]));
 
-		min_duration.push(
-			d3.min(extracted_duration["sw_" + nodes[i].id.toString()])
-		);
-		max_duration.push(
-			d3.max(extracted_duration["sw_" + nodes[i].id.toString()])
-		);
+		min_duration.push(d3.min(extracted_duration[nodes[i].name]));
+		max_duration.push(d3.max(extracted_duration[nodes[i].name]));
 
-		extracted_depth["sw_" + nodes[i].id.toString()] = isNaN(avg_depth)
-			? 0
-			: avg_depth;
-
-		extracted_duration["sw_" + nodes[i].id.toString()] = isNaN(avg_duration)
+		extracted_depth[nodes[i].name] = isNaN(avg_depth) ? 0 : avg_depth;
+		extracted_duration[nodes[i].name] = isNaN(avg_duration)
 			? 0
 			: avg_duration;
 	}
@@ -275,7 +268,7 @@ function add_legends(subgroups, color) {
 		.attr("x", function (d, i) {
 			return margin.left + i * 100 + 25;
 		})
-		.attr("y", 15)
+		.attr("y", 18)
 		.style("fill", function (d) {
 			return color(d);
 		})
