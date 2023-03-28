@@ -1,41 +1,62 @@
 import data from "../topology.json" assert { type: "json" };
 
 // set the dimensions and margins of the graph
-var margin = { top: 10, right: 30, bottom: 30, left: 40 },
+const margin = { top: 10, right: 30, bottom: 30, left: 40 },
 	width =
 		d3.select("#topology").node().offsetWidth - margin.left - margin.right,
 	height =
 		d3.select("#topology").node().offsetHeight - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
-var topo_svg = d3
+const full_svg = d3
 	.select("#topology")
 	.append("svg")
 	.attr("width", width + margin.left + margin.right)
-	.attr("height", height + margin.top + margin.bottom)
+	.attr("height", height + margin.top + margin.bottom);
+
+const topo_svg = full_svg
 	.append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+full_svg
+	.append("text")
+	.attr("text-anchor", "middle")
+	.attr("font-size", "20px")
+	// .attr("style", "font-weight: bold")
+	.attr("x", (width + margin.left + margin.right) / 2)
+	.attr("y", 15)
+	// .attr("y", height + margin.top + margin.bottom - 15)
+	.text("Network Topology")
+	.style("fill", "black");
+
 export function draw_topology() {
 	// Initialize the links
-	var link = topo_svg
+	const link = topo_svg
 		.selectAll("line")
 		.data(data.links)
 		.enter()
 		.append("line")
 		.style("stroke", "#aaa");
 
+	let sw_names = [];
+	for (let i = 0; i < data.nodes; i++) {
+		sw_names.push(data.nodes[i].name);
+	}
+	const color_scale = d3.scaleOrdinal().domain(sw_names).range(d3.schemeSet1);
+
 	// Initialize the nodes
-	var node = topo_svg
+	const node = topo_svg
 		.selectAll("circle")
 		.data(data.nodes)
 		.enter()
 		.append("circle")
-		.attr("r", 20)
-		.style("fill", "#69b3a2");
+		.attr("r", 10)
+		.style("fill", function (d, i) {
+			return color_scale(d.name);
+		});
 
 	// Let's list the force we wanna apply on the network
-	var simulation = d3
+	const simulation = d3
 		.forceSimulation(data.nodes) // Force algorithm is applied to data.nodes
 		.force(
 			"link",
