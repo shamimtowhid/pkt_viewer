@@ -29,6 +29,35 @@ full_svg
 	.text("Network Topology")
 	.style("fill", "black");
 
+const tooltip = d3
+	.select("#topology")
+	.append("div")
+	.style("position", "absolute")
+	.style("z-index", "10")
+	.style("visibility", "hidden")
+	.style("background-color", "white")
+	.style("border", "solid")
+	.style("border-width", "2px")
+	.style("border-radius", "5px")
+	.style("padding", "5px");
+
+const mouseover = function (event, d) {
+	tooltip.style("visibility", "visible");
+	d3.select(this).style("stroke", "black");
+};
+
+const mousemove = function (event, d) {
+	tooltip
+		.html(d.name)
+		.style("left", event.pageX + 15 + "px")
+		.style("top", event.pageY - 5 + "px");
+};
+
+const mouseleave = function (d) {
+	tooltip.style("visibility", "hidden");
+	d3.select(this).style("stroke", "none");
+};
+
 export function draw_topology(pckt_data) {
 	// Initialize the links
 	const link = topo_svg
@@ -61,7 +90,10 @@ export function draw_topology(pckt_data) {
 		.attr("r", 10)
 		.style("fill", function (d, i) {
 			return color_scale(d.name);
-		});
+		})
+		.on("mouseover", mouseover)
+		.on("mousemove", mousemove)
+		.on("mouseleave", mouseleave);
 
 	// Let's list the force we wanna apply on the network
 	const simulation = d3
@@ -73,10 +105,10 @@ export function draw_topology(pckt_data) {
 				.id(function (d) {
 					return d.id;
 				}) // This provide  the id of a node
-				.distance(100)
+				.distance(50)
 				.links(data.links) // and this the list of links
 		)
-		.force("charge", d3.forceManyBody().strength(-60)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+		.force("charge", d3.forceManyBody().strength(-10)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
 		.force("center", d3.forceCenter(width / 2, height / 2)) // This force attracts nodes to the center of the svg area
 		.on("end", ticked);
 
@@ -103,9 +135,7 @@ export function draw_topology(pckt_data) {
 	}
 
 	update_link(pckt_data);
-	// console.log(data.links);
-	// let linktoupdate = d3.select("line.nodelink[source='0'][target='2']");
-	// linktoupdate.style("stroke-width", 10);
+
 	return data.nodes;
 }
 
@@ -150,7 +180,7 @@ export function update_link(pckt_data) {
 			}
 		}
 	}
-	console.log(counter);
+	// console.log(counter);
 	const scale = d3.scaleLinear().domain([min_val, max_val]).range([1, 10]);
 	if (min_val == 0 && max_val == 0) {
 		d3.selectAll("line.nodelink").style("stroke-width", 1);
