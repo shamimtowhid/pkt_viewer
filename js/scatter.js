@@ -10,11 +10,7 @@ const xValue = (d) => {
 	// const ts1 = 1675921681.915128;
 	unique_dst_ip.add(d.dst_ip);
 
-	if (d.send_time === ts1) {
-		return 1;
-	} else {
-		return d.send_time - ts1; // return difference between two timestamp in seconds
-	}
+	return d.send_time - ts1; // return difference between two timestamp in seconds
 };
 
 // preparing Y data
@@ -44,6 +40,7 @@ const color_list = ["#1b9e77", "#d95f02", "#7570b3"];
 export function scatter_plot(parsedData) {
 	ts1 = parsedData[0].send_time;
 	ts2 = parsedData[parsedData.length - 1].send_time;
+
 	const x = d3
 		.scaleLinear()
 		.domain(d3.extent(parsedData, xValue))
@@ -176,7 +173,6 @@ export function scatter_plot(parsedData) {
 }
 
 function addLegend(scatter_svg, color_scale) {
-	// console.log(nodes);
 	// create legends with checkbox
 	const host_list = Array.from(unique_dst_ip).sort();
 	for (let i = 0; i < host_list.length; i++) {
