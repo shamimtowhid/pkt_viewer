@@ -41,9 +41,11 @@ export function scatter_plot(parsedData) {
 	ts1 = parsedData[0].send_time;
 	ts2 = parsedData[parsedData.length - 1].send_time;
 
+	const [xmin, xmax] = d3.extent(parsedData, xValue);
+	const [ymin, ymax] = d3.extent(parsedData, yValue);
 	const x = d3
 		.scaleLinear()
-		.domain(d3.extent(parsedData, xValue))
+		.domain([xmin, xmax])
 		.range([scatter_margin.left, scatter_width - scatter_margin.right])
 		.nice();
 
@@ -54,7 +56,7 @@ export function scatter_plot(parsedData) {
 
 	const y = d3
 		.scaleLinear()
-		.domain(d3.extent(parsedData, yValue))
+		.domain([ymin, ymax])
 		.range([scatter_height - scatter_margin.bottom, scatter_margin.top]) // this range is flipped because origin is at upper left corner
 		.nice();
 
@@ -140,6 +142,7 @@ export function scatter_plot(parsedData) {
 		.style("fill", "grey");
 
 	// Create the range slider
+	add_slider_x([xmin, xmax], scatter_svg, x);
 
 	// calculate brushable area
 	const brushArea = [
@@ -198,5 +201,73 @@ function addLegend(scatter_svg, color_scale) {
 			.text(label)
 			.attr("fill", color_scale(host_list[i]))
 			.attr("font-size", "20");
+	}
+}
+
+function add_slider_x(sliderVals, svg, x) {
+	x.clamp(true);
+	const xMin = x.range()[0];
+	const xMax = x.range()[1];
+
+	const slider = svg
+		.append("g")
+		.attr("class", "slider")
+		.attr("transform", `translate(0, ${scatter_height - 50})`);
+
+	slider
+		.append("line")
+		.attr("class", "track")
+		.attr("x1", 10 + x.range()[0])
+		.attr("x2", 10 + x.range()[1]);
+
+	const selRange = slider
+		.append("line")
+		.attr("class", "sel-range")
+		.attr("x1", 10 + x(sliderVals[0]))
+		.attr("x2", 10 + x(sliderVals[1]));
+
+	const handle = slider
+		.selectAll("rect")
+		.data([0, 1])
+		.enter()
+		.append("rect", ".track-overlay")
+		.attr("class", "handle")
+		.attr("y", -8)
+		.attr("x", (d) => x(sliderVals[d]))
+		.attr("rx", 3)
+		.attr("height", 16)
+		.attr("width", 20)
+		.call(
+			d3.drag().on("start", startDrag).on("drag", drag).on("end", endDrag)
+		);
+
+	function startDrag() {
+		d3.select(this).raise().classed("active", true);
+	}
+
+	function drag(event, d) {
+		let x1 = event.x;
+		if (x1 > xMax) {
+			x1 = xMax;
+		} else if (x1 < xMin) {
+			x1 = xMin;
+		}
+		d3.select(this).attr("x", x1);
+		const x2 = x(sliderVals[d == 0 ? 1 : 0]);
+		selRange.attr("x1", 10 + x1).attr("x2", 10 + x2);
+	}
+
+	function endDrag(event, d) {
+		// invert function converts range value to domain value
+		const v = x.invert(event.x);
+		const elem = d3.select(this);
+		sliderVals[d] = v;
+		const v1 = Math.round(Math.min(sliderVals[0], sliderVals[1])),
+			v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+		elem.classed("active", false).attr("x", x(v));
+		selRange.attr("x1", 10 + x(v1)).attr("x2", 10 + x(v2));
+		// console.log(selRange.attr("x1"));
+		// console.log(selRange.attr("x2"));
+		// console.log(v1, v2);
 	}
 }
