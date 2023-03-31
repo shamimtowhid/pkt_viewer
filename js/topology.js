@@ -24,7 +24,7 @@ full_svg
 	.attr("font-size", "20px")
 	// .attr("style", "font-weight: bold")
 	.attr("x", (width + margin.left + margin.right) / 2)
-	.attr("y", 15)
+	.attr("y", 30)
 	// .attr("y", height + margin.top + margin.bottom - 15)
 	.text("Network Topology")
 	.style("fill", "black");

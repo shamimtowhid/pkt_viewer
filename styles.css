@@ -11,15 +11,63 @@ body {
 	display: grid;
 	grid-template-rows: 1fr 1fr;
 	grid-template-columns: 1fr 1fr;
+	grid-gap: 0px;
+	margin: 0 50px;
 	height: 95%;
 }
 
+.box {
+	background-color: #fff;
+	padding: 10px;
+}
+
 #heading {
-	font-size: xx-large;
 	/* background-color: #5962ee; */
-	height: 5%;
+	height: 80px;
+}
+
+#appname {
+	font-size: xx-large;
 	color: #000;
 	text-align: center;
+	margin: 0;
+	font-weight: bold;
+}
+
+#timeline {
+	font-size: 20px;
+	color: #000;
+	margin-top: 10px;
+	text-align: center;
+}
+
+@media screen and (max-width: 1600px) {
+	#container {
+		grid-template-columns: 1fr;
+		overflow: auto;
+	}
+	.box {
+		padding: 10px;
+		min-height: 400px;
+		/* min-width: 600px; */
+	}
+}
+
+/* Hide the scrollbar */
+#container::-webkit-scrollbar {
+	width: 0.5em;
+}
+
+#container::-webkit-scrollbar-thumb {
+	background-color: #fff;
+}
+
+#table::-webkit-scrollbar {
+	width: 0.5em;
+}
+
+#table::-webkit-scrollbar-thumb {
+	background-color: #fff;
 }
 
 .tick text {
@@ -49,7 +97,9 @@ body {
 th {
 	position: sticky;
 	top: 0; /* required for stickiness */
-	background-color: #d2d2d2;
+	background-color: #fff;
+	font-weight: normal;
+	border-bottom: 2px solid #ddd;
 }
 
 table,
@@ -59,13 +109,14 @@ th {
 	text-align: center;
 	table-layout: fixed;
 	/* border: 1px solid; */
-	border-collapse: collapse;
-	border-bottom: 1px solid #ddd;
-	padding: 10px;
+	border-collapse: separate;
+	border-spacing: 0;
+	padding: 5px;
 	font-size: 20px;
 }
 
 #table {
+	height: 300px;
 	overflow-y: auto;
 }
 
@@ -78,7 +129,7 @@ th {
 }
 
 .bar_g line {
-	stroke: #def;
+	stroke: #ddd;
 }
 
 /* for slider */
@@ -105,16 +156,16 @@ th {
 	stroke-width: 8px;
 }
 
-.handle {
+.sliderhandle {
 	fill: #e0f7fa;
 	stroke: #000;
 	stroke-opacity: 0.5;
 	stroke-width: 1.25px;
 	cursor: pointer;
 }
-.handle:hover {
+.sliderhandle:hover {
 	fill: #b2ebf2;
 }
-.handle.active {
+.sliderhandle.active {
 	fill: #4dd0e1;
 }

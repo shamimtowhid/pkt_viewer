@@ -4,6 +4,7 @@ import { update_link } from "./topology.js";
 // function for create table
 export function tabulate(data, columns, scatter_svg, color_scale, nodes) {
 	const table = d3.select("#table").append("table").attr("id", "added_table");
+	// .style("overflow-y", "auto");
 	const thead = table.append("thead");
 	const tbody = table.append("tbody");
 

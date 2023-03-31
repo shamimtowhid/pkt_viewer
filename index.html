@@ -13,14 +13,18 @@
 	</head>
 
 	<body>
-		<div id="heading"><b>Packet Viewer</b></div>
+		<div id="heading">
+			<p id="appname">Packet Viewer</p>
+			<p id="timeline"></p>
+		</div>
 		<div id="container">
-			<div id="scatter"></div>
-			<div id="bar"></div>
-			<div id="table">
+			<div class="box" id="scatter"></div>
+			<div class="box" id="bar"></div>
+			<div class="box" id="third_container">
 				<p id="table_msg">No packet is selected</p>
+				<div id="table"></div>
 			</div>
-			<div id="topology"></div>
+			<div class="box" id="topology"></div>
 		</div>
 	</body>
 </html>

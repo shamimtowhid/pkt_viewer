@@ -164,13 +164,8 @@ export function scatter_plot(parsedData) {
 		new Date(ts1 * 1000).toLocaleString() +
 		"\tTo: " +
 		new Date(ts2 * 1000).toLocaleString();
-	scatter_svg
-		.append("text")
-		.attr("class", "larger")
-		.attr("x", scatter_margin.left + 3 * 100 + 50)
-		.attr("y", 25)
-		.text(date_text)
-		.attr("font-size", "20");
+
+	d3.select("#timeline").text(date_text);
 
 	return [scatter_svg, circles, brushArea, color_scale];
 }
@@ -227,11 +222,11 @@ function add_slider_x(sliderVals, svg, x) {
 		.attr("x2", 10 + x(sliderVals[1]));
 
 	const handle = slider
-		.selectAll("rect")
+		.selectAll(".sliderhandle")
 		.data([0, 1])
 		.enter()
 		.append("rect", ".track-overlay")
-		.attr("class", "handle")
+		.attr("class", "sliderhandle")
 		.attr("y", -8)
 		.attr("x", (d) => x(sliderVals[d]))
 		.attr("rx", 3)
