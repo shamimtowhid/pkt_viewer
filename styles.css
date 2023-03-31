@@ -11,14 +11,14 @@ body {
 	display: grid;
 	grid-template-rows: 1fr 1fr;
 	grid-template-columns: 1fr 1fr;
-	grid-gap: 0px;
-	margin: 0 50px;
+	grid-gap: 10px;
+	margin: 0px 50px;
 	height: 95%;
 }
 
 .box {
 	background-color: #fff;
-	padding: 10px;
+	padding: 20px;
 }
 
 #heading {
@@ -47,7 +47,7 @@ body {
 		overflow: auto;
 	}
 	.box {
-		padding: 10px;
+		padding: 20px;
 		min-height: 400px;
 		/* min-width: 600px; */
 	}
@@ -122,6 +122,7 @@ th {
 
 #table_msg {
 	font-size: 20px;
+	margin: 0;
 }
 
 .highlight {

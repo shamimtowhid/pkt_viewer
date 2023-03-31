@@ -3,13 +3,11 @@ const margin = {
 	top: 50,
 	right: 50,
 	bottom: 100,
-	left: 100,
+	left: 50,
 };
-
-const svg_width =
-	d3.select("#bar").node().offsetWidth - margin.left - margin.right;
-const svg_height =
-	d3.select("#bar").node().offsetHeight - margin.top - margin.bottom;
+const container_margin = 50; // pixel
+const svg_width = d3.select("#bar").node().offsetWidth - container_margin;
+const svg_height = d3.select("#bar").node().offsetHeight;
 
 const average = (arr) => arr.reduce((p, c) => p + c, 0) / (arr.length || 1);
 
@@ -74,20 +72,26 @@ const full_svg = d3
 	.select("#bar")
 	.append("svg")
 	.attr("id", "bar_svg")
-	.attr("width", svg_width + margin.left + margin.right)
-	.attr("height", svg_height + margin.top + margin.bottom);
+	.attr("width", svg_width)
+	.attr("height", svg_height);
 
 const bar_svg = full_svg
 	.append("g")
 	.attr("class", "bar_g")
-	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	.attr("transform", "translate(" + 0 + "," + 0 + ")");
 
-const grid = bar_svg.append("g").attr("class", "bar_g");
-const yAxis = bar_svg.append("g").attr("class", "bar_g");
+const grid = bar_svg
+	.append("g")
+	.attr("transform", `translate(${margin.left}, 0)`)
+	.attr("class", "bar_g");
+const yAxis = bar_svg
+	.append("g")
+	.attr("transform", `translate(${margin.left}, 0)`)
+	.attr("class", "bar_g");
 const xAxis = bar_svg
 	.append("g")
 	.attr("class", "bar_g")
-	.attr("transform", "translate(0," + svg_height + ")");
+	.attr("transform", "translate(0," + (svg_height - margin.bottom) + ")");
 
 // Add x-axis label
 // full_svg
@@ -122,28 +126,40 @@ export function bar_plot(data, nodes) {
 
 	const groups = ["Normalized queue depth", "Normalized packet duration"];
 
-	var x = d3.scaleBand().domain(groups).range([0, svg_width]).padding([0.2]);
+	var x = d3
+		.scaleBand()
+		.domain(groups)
+		.range([margin.left, svg_width - margin.right])
+		.padding([0.2]);
 
 	// Add Y axis
 	const depth_scale = d3
 		.scaleLinear()
 		.domain([min_depth, max_depth])
-		.range([svg_height, 0]);
+		.range([svg_height - margin.bottom, margin.top]);
 
 	const duration_scale = d3
 		.scaleLinear()
 		.domain([min_duration, max_duration])
-		.range([svg_height, 0]);
+		.range([svg_height - margin.bottom, margin.top]);
 
-	var y = d3.scaleLinear().domain([0, 1]).range([svg_height, 0]);
+	var y = d3
+		.scaleLinear()
+		.domain([0, 1])
+		.range([svg_height - margin.bottom, margin.top]);
 	const yAxisGrid = d3
 		.axisLeft(y)
-		.tickSize(-svg_width)
+		.tickSize(-(svg_width - margin.right - container_margin))
 		.tickFormat("")
 		.ticks(5);
 
 	grid.call(yAxisGrid);
-	yAxis.call(d3.axisLeft(y).tickSize(-svg_width).ticks(5));
+	yAxis.call(
+		d3
+			.axisLeft(y)
+			.tickSize(-(svg_width - margin.right - container_margin))
+			.ticks(5)
+	);
 	xAxis.call(d3.axisBottom(x).tickSize(0));
 
 	// Another scale for subgroup position
@@ -184,7 +200,7 @@ export function bar_plot(data, nodes) {
 			.attr("x", function (d) {
 				return xSubgroup(d.key);
 			})
-			.attr("y", svg_height - min_bar_height)
+			.attr("y", svg_height - margin.bottom - min_bar_height)
 			.attr("width", xSubgroup.bandwidth())
 			//.transition()
 			//.duration(500)
@@ -203,12 +219,12 @@ export function bar_plot(data, nodes) {
 			.attr("y", function (d) {
 				if (d.group === "Normalized queue depth") {
 					return Math.min(
-						svg_height - min_bar_height,
+						svg_height - margin.bottom - min_bar_height,
 						depth_scale(d.value)
 					);
 				} else {
 					return Math.min(
-						svg_height - min_bar_height,
+						svg_height - margin.bottom - min_bar_height,
 						duration_scale(d.value)
 					);
 				}
@@ -220,12 +236,12 @@ export function bar_plot(data, nodes) {
 				if (d.group === "Normalized queue depth") {
 					return Math.max(
 						min_bar_height,
-						svg_height - depth_scale(d.value)
+						svg_height - margin.bottom - depth_scale(d.value)
 					);
 				} else {
 					return Math.max(
 						min_bar_height,
-						svg_height - duration_scale(d.value)
+						svg_height - margin.bottom - duration_scale(d.value)
 					);
 				}
 			})

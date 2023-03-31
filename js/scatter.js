@@ -1,7 +1,8 @@
 const scatter_height = d3.select("#scatter").node().offsetHeight; //-
 //d3.select("#label_h1").node().offsetHeight;
-
-const scatter_width = d3.select("#scatter").node().offsetWidth;
+const container_margin = 50;
+const scatter_width =
+	d3.select("#scatter").node().offsetWidth - container_margin;
 
 const unique_dst_ip = new Set();
 

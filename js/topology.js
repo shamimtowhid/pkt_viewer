@@ -1,30 +1,29 @@
 import data from "../topology.json" assert { type: "json" };
 
 // set the dimensions and margins of the graph
+const container_margin = 50;
 const margin = { top: 10, right: 30, bottom: 30, left: 40 },
-	width =
-		d3.select("#topology").node().offsetWidth - margin.left - margin.right,
-	height =
-		d3.select("#topology").node().offsetHeight - margin.top - margin.bottom;
+	width = d3.select("#topology").node().offsetWidth - container_margin,
+	height = d3.select("#topology").node().offsetHeight;
 
 // append the svg object to the body of the page
 const full_svg = d3
 	.select("#topology")
 	.append("svg")
-	.attr("width", width + margin.left + margin.right)
-	.attr("height", height + margin.top + margin.bottom);
+	.attr("width", width)
+	.attr("height", height);
 
 const topo_svg = full_svg
 	.append("g")
-	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	.attr("transform", "translate(" + 0 + "," + 0 + ")");
 
 full_svg
 	.append("text")
 	.attr("text-anchor", "middle")
 	.attr("font-size", "20px")
 	// .attr("style", "font-weight: bold")
-	.attr("x", (width + margin.left + margin.right) / 2)
-	.attr("y", 30)
+	.attr("x", width / 2)
+	.attr("y", 15)
 	// .attr("y", height + margin.top + margin.bottom - 15)
 	.text("Network Topology")
 	.style("fill", "black");
