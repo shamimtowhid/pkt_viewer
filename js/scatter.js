@@ -161,12 +161,13 @@ export function scatter_plot(parsedData) {
 
 	// add human readbale date and time
 	const date_text =
-		"From: " +
+		"From <strong>" +
 		new Date(ts1 * 1000).toLocaleString() +
-		"\tTo: " +
-		new Date(ts2 * 1000).toLocaleString();
+		"</strong> to <strong>" +
+		new Date(ts2 * 1000).toLocaleString() +
+		"</strong>";
 
-	d3.select("#timeline").text(date_text);
+	d3.select("#timeline").html(date_text);
 
 	return [scatter_svg, circles, brushArea, color_scale];
 }
