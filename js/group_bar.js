@@ -193,21 +193,44 @@ export function bar_plot(data, nodes) {
 		});
 
 	if (min_depth == 0 && max_depth == 0) {
-		u.join("rect")
-			//.append("rect")
-			.attr("class", "bar_rect")
-			//.merge(u)
-			.attr("x", function (d) {
-				return xSubgroup(d.key);
+		u.join("text")
+			// .data(plot_data)
+			.attr("class", "legend_element")
+			.attr("x", function (d, i) {
+				return xSubgroup(d.key) + xSubgroup.bandwidth() / 2;
 			})
-			.attr("y", svg_height - margin.bottom - min_bar_height)
-			.attr("width", xSubgroup.bandwidth())
-			//.transition()
-			//.duration(500)
-			.attr("height", min_bar_height)
-			.attr("fill", function (d) {
+			.attr("y", function (d) {
+				// console.log(d);
+				// if (d.group === "Normalized queue depth") {
+				return svg_height - margin.bottom - 5;
+				// } else {
+				// return - 5;
+				// }
+			})
+			.style("fill", function (d) {
 				return color(d.key);
-			});
+			})
+			.text(function (d) {
+				// console.log(d);
+				return d.key;
+			})
+			.style("text-anchor", "middle");
+
+		// u.join("rect")
+		// 	//.append("rect")
+		// 	.attr("class", "bar_rect")
+		// 	//.merge(u)
+		// 	.attr("x", function (d) {
+		// 		return xSubgroup(d.key);
+		// 	})
+		// 	.attr("y", svg_height - margin.bottom - min_bar_height)
+		// 	.attr("width", xSubgroup.bandwidth())
+		// 	//.transition()
+		// 	//.duration(500)
+		// 	.attr("height", min_bar_height)
+		// 	.attr("fill", function (d) {
+		// 		return color(d.key);
+		// 	});
 	} else {
 		u.join("rect")
 			//.append("rect")
@@ -218,15 +241,9 @@ export function bar_plot(data, nodes) {
 			})
 			.attr("y", function (d) {
 				if (d.group === "Normalized queue depth") {
-					return Math.min(
-						svg_height - margin.bottom - min_bar_height,
-						depth_scale(d.value)
-					);
+					return depth_scale(d.value);
 				} else {
-					return Math.min(
-						svg_height - margin.bottom - min_bar_height,
-						duration_scale(d.value)
-					);
+					return duration_scale(d.value);
 				}
 			})
 			.attr("width", xSubgroup.bandwidth())
@@ -234,23 +251,41 @@ export function bar_plot(data, nodes) {
 			//.duration(500)
 			.attr("height", function (d) {
 				if (d.group === "Normalized queue depth") {
-					return Math.max(
-						min_bar_height,
-						svg_height - margin.bottom - depth_scale(d.value)
-					);
+					return svg_height - margin.bottom - depth_scale(d.value);
 				} else {
-					return Math.max(
-						min_bar_height,
-						svg_height - margin.bottom - duration_scale(d.value)
-					);
+					return svg_height - margin.bottom - duration_scale(d.value);
 				}
 			})
 			.attr("fill", function (d) {
 				return color(d.key);
 			});
+
+		// adding legends on top of the bar
+		u.join("text")
+			// .data(plot_data)
+			.attr("class", "legend_element")
+			.attr("x", function (d, i) {
+				return xSubgroup(d.key) + xSubgroup.bandwidth() / 2;
+			})
+			.attr("y", function (d) {
+				// console.log(d);
+				if (d.group === "Normalized queue depth") {
+					return depth_scale(d.value) - 5;
+				} else {
+					return duration_scale(d.value) - 5;
+				}
+			})
+			.style("fill", function (d) {
+				return color(d.key);
+			})
+			.text(function (d) {
+				// console.log(d);
+				return d.key;
+			})
+			.style("text-anchor", "middle");
 	}
 
-	add_legends(subgroups, color);
+	// add_legends(subgroups, color);
 
 	return bar_svg;
 }
