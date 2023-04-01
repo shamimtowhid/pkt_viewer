@@ -40,9 +40,9 @@ const main = async () => {
 			d3.selectAll("#large_circle").remove();
 			d3.select("#table_msg").text("No packet is selected");
 			d3.select("#brush").call(d3.brush().move, null);
-			d3.selectAll(".dot").style("fill", (d) =>
-				color_scale(d.destination_ip)
-			);
+			d3.selectAll(".dot")
+				.style("fill", (d) => color_scale(d.destination_ip))
+				.style("stroke-width", 0.5);
 			let selected = this.value;
 			const display = this.checked ? "inline" : "none";
 			const selected_circles = circles
@@ -67,13 +67,13 @@ const main = async () => {
 	// typenames define when to call the listener function
 	// listener function defines what to do
 	// example typenames: "start brush end"
-	const brush = d3.brush().extent(brushArea).on("end", brushed);
+	const brush = d3.brush().extent(brushArea).on("start brush end", brushed);
 
 	scatter_svg.append("g").attr("id", "brush").call(brush);
 
 	function brushed({ selection }) {
 		// change the color of all circles
-		d3.selectAll(".dot").style("fill", "grey");
+		d3.selectAll(".dot").style("fill", "gray").style("stroke-width", 0);
 		// selection containes the x,y coordinates of starting and end position
 		const value = new Set();
 		// removing all the large circles resulted from previous selection operation
@@ -92,7 +92,8 @@ const main = async () => {
 						return d3.select(this);
 					}
 				})
-				.style("fill", (d) => color_scale(d.destination_ip));
+				.style("fill", (d) => color_scale(d.destination_ip))
+				.style("stroke-width", 0.5);
 		} else {
 			// when clicked on the svg without selection
 			d3.select("#added_table").remove();
@@ -103,7 +104,8 @@ const main = async () => {
 				.filter(function () {
 					return this.getAttribute("display") === "inline";
 				})
-				.style("fill", (d) => color_scale(d.destination_ip));
+				.style("fill", (d) => color_scale(d.destination_ip))
+				.style("stroke-width", 0.5);
 		}
 		// generate table based on the selected circles
 		if (value.size > 0) {
