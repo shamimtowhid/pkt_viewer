@@ -40,7 +40,9 @@ const main = async () => {
 			d3.selectAll("#large_circle").remove();
 			d3.select("#table_msg").text("No packet is selected");
 			d3.select("#brush").call(d3.brush().move, null);
-
+			d3.selectAll(".dot").style("fill", (d) =>
+				color_scale(d.destination_ip)
+			);
 			let selected = this.value;
 			const display = this.checked ? "inline" : "none";
 			const selected_circles = circles
@@ -70,6 +72,8 @@ const main = async () => {
 	scatter_svg.append("g").attr("id", "brush").call(brush);
 
 	function brushed({ selection }) {
+		// change the color of all circles
+		d3.selectAll(".dot").style("fill", "grey");
 		// selection containes the x,y coordinates of starting and end position
 		const value = new Set();
 		// removing all the large circles resulted from previous selection operation
@@ -85,16 +89,21 @@ const main = async () => {
 				.filter((d) => {
 					if (x0 <= d.x && d.x < x1 && y0 <= d.y && d.y < y1) {
 						value.add(d);
+						return d3.select(this);
 					}
-				});
+				})
+				.style("fill", (d) => color_scale(d.destination_ip));
 		} else {
 			// when clicked on the svg without selection
 			d3.select("#added_table").remove();
 			d3.select("#table_msg").text("No packet is selected"); // no packet selected
 			// draw bar plot based on visible circles
-			visible_circles = d3.selectAll(".dot").filter(function () {
-				return this.getAttribute("display") === "inline";
-			});
+			visible_circles = d3
+				.selectAll(".dot")
+				.filter(function () {
+					return this.getAttribute("display") === "inline";
+				})
+				.style("fill", (d) => color_scale(d.destination_ip));
 		}
 		// generate table based on the selected circles
 		if (value.size > 0) {
