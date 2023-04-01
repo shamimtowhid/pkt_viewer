@@ -1,0 +1,56 @@
+/* css for tick of axis */
+.tick text {
+	font-size: 20px;
+	fill: grey;
+}
+
+.tick line {
+	font-size: 20px;
+	stroke: grey;
+}
+
+.domain {
+	stroke: grey;
+}
+
+/* CSS for table */
+th {
+	position: sticky;
+	top: 0; /* required for stickiness */
+	background-color: #fff;
+	font-weight: normal;
+	border-bottom: 2px solid #ddd;
+}
+
+table,
+td,
+th {
+	width: 100%;
+	text-align: center;
+	table-layout: fixed;
+	/* border: 1px solid; */
+	border-collapse: separate;
+	border-spacing: 0;
+	padding: 5px;
+	font-size: 20px;
+}
+
+#table {
+	height: 280px;
+	overflow-y: auto;
+}
+
+#table_msg {
+	font-size: 20px;
+	margin-top: 0px;
+}
+
+.highlight {
+	background: #def;
+}
+
+/* css for bar plot */
+
+.bar_g line {
+	stroke: #ddd;
+}

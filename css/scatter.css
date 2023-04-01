@@ -1,0 +1,47 @@
+.dot {
+	stroke: #000;
+	stroke-width: 0.5;
+}
+
+.larger {
+	width: 20px;
+	height: 20px;
+}
+
+/* for slider */
+
+.track,
+.track-inset,
+.track-overlay {
+	stroke-linecap: round;
+}
+
+.track {
+	stroke: #bbb;
+	stroke-width: 10px;
+}
+
+.track-overlay {
+	pointer-events: stroke;
+	stroke-width: 50px;
+	cursor: crosshair;
+}
+
+.sel-range {
+	stroke: #9ccc65;
+	stroke-width: 8px;
+}
+
+.sliderhandle {
+	fill: #e0f7fa;
+	stroke: #000;
+	stroke-opacity: 0.5;
+	stroke-width: 1.25px;
+	cursor: pointer;
+}
+.sliderhandle:hover {
+	fill: #b2ebf2;
+}
+.sliderhandle.active {
+	fill: #4dd0e1;
+}
