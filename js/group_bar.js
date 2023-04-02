@@ -251,9 +251,15 @@ export function bar_plot(data, nodes) {
 			//.duration(500)
 			.attr("height", function (d) {
 				if (d.group === "Normalized queue depth") {
-					return svg_height - margin.bottom - depth_scale(d.value);
+					return Math.max(
+						0,
+						svg_height - margin.bottom - depth_scale(d.value)
+					);
 				} else {
-					return svg_height - margin.bottom - duration_scale(d.value);
+					return Math.max(
+						0,
+						svg_height - margin.bottom - duration_scale(d.value)
+					);
 				}
 			})
 			.attr("fill", function (d) {

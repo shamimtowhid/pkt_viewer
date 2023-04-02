@@ -265,6 +265,6 @@ function add_slider_x(sliderVals, svg, x) {
 		selRange.attr("x1", 10 + x(v1)).attr("x2", 10 + x(v2));
 		// console.log(selRange.attr("x1"));
 		// console.log(selRange.attr("x2"));
-		// console.log(v1, v2);
+		console.log(v1, v2);
 	}
 }
