@@ -136,7 +136,7 @@ export function scatter_plot(parsedData) {
 		.attr("y", 20)
 		.attr("transform", "rotate(-90)")
 		.text("Queue Depth (avg.)")
-		.style("fill", "grey");
+		.style("fill", "#000");
 
 	const xAxis = scatter_svg
 		.append("g")
@@ -155,9 +155,9 @@ export function scatter_plot(parsedData) {
 		.attr("font-size", "20px")
 		// .attr("style", "font-weight: bold")
 		.attr("x", scatter_width / 2)
-		.attr("y", scatter_height - 15)
+		.attr("y", scatter_height - 50)
 		.text("Time (second)")
-		.style("fill", "grey");
+		.style("fill", "#000");
 
 	// Create the range slider
 	add_slider_x(
@@ -225,7 +225,7 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 	const slider = svg
 		.append("g")
 		.attr("class", "slider")
-		.attr("transform", `translate(0, ${scatter_height - 50})`);
+		.attr("transform", `translate(0, ${scatter_height - 35})`);
 
 	slider
 		.append("line")
@@ -270,11 +270,64 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 		selRange.attr("x1", 10 + x1).attr("x2", 10 + x2);
 
 		// add tooltip to the handler
-		console.log(Math.round(x.invert(x1)), Math.round(x.invert(x2)));
+		// console.log(
+		// 	Math.round(x.invert(x1 + 10)),
+		// 	Math.round(x.invert(x2 + 10))
+		// );
+		d3.selectAll(".handle_tip").remove();
+		// let current_val =
+		slider
+			.append("text")
+			.attr("class", "handle_tip")
+			.text(Math.round(x.invert(x1)))
+			.attr("x", 10 + x1)
+			.attr("y", 25)
+			.style("fill", "#000")
+			.style("text-anchor", "middle");
+
+		slider
+			.append("text")
+			.attr("class", "handle_tip")
+			.text(Math.round(x.invert(x2)))
+			.attr("x", 10 + x2)
+			.attr("y", 25)
+			.style("fill", "#000")
+			.style("text-anchor", "middle");
+		// for real time updating the plot
+		// let v = x.invert(event.x);
+		// const elem = d3.select(this);
+		// let past_position = sliderVals[d];
+		// sliderVals[d] = v;
+		// let v1 = Math.round(Math.min(sliderVals[0], sliderVals[1])),
+		// 	v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+
+		// if (x(v2 - v1) < x(min_distance)) {
+		// 	if (past_position > v) {
+		// 		v = Math.min(
+		// 			x.domain()[1],
+		// 			sliderVals[d == 0 ? 1 : 0] + x(min_distance)
+		// 		);
+		// 	} else {
+		// 		v = Math.max(
+		// 			x.domain()[0],
+		// 			sliderVals[d == 0 ? 1 : 0] - x(min_distance)
+		// 		);
+		// 	}
+		// }
+
+		// sliderVals[d] = v;
+		// v1 = Math.round(Math.min(sliderVals[0], sliderVals[1]));
+		// v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+
+		// elem.classed("active", false).attr("x", x(v));
+		// selRange.attr("x1", 10 + x(v1)).attr("x2", 10 + x(v2));
+		// // console.log(selRange.attr("x1"));
+		// // console.log(selRange.attr("x2"));
+		// // console.log(v1, v2);
+		// updatePlot(svg, [v1, v2], x, xAxis, circles, color_scale, area);
 	}
 
 	const min_distance = 70;
-
 	function endDrag(event, d) {
 		// invert function converts range value to domain value
 		// console.log(x.domain());
@@ -305,6 +358,26 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 
 		elem.classed("active", false).attr("x", x(v));
 		selRange.attr("x1", 10 + x(v1)).attr("x2", 10 + x(v2));
+
+		d3.selectAll(".handle_tip").remove();
+		slider
+			.append("text")
+			.attr("class", "handle_tip")
+			.text(Math.round(v1))
+			.attr("x", 10 + x(v1))
+			.attr("y", 25)
+			.style("fill", "#000")
+			.style("text-anchor", "middle");
+
+		slider
+			.append("text")
+			.attr("class", "handle_tip")
+			.text(Math.round(v2))
+			.attr("x", 10 + x(v2))
+			.attr("y", 25)
+			.style("fill", "#000")
+			.style("text-anchor", "middle");
+
 		// console.log(selRange.attr("x1"));
 		// console.log(selRange.attr("x2"));
 		// console.log(v1, v2);
