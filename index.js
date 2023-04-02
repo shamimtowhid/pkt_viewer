@@ -48,7 +48,11 @@ const main = async () => {
 			const selected_circles = circles
 				//.selectAll(".dot")
 				.filter((d) => {
-					return selected == d.destination_ip;
+					return (
+						selected == d.destination_ip &&
+						d.x > brushArea[0][0] + 5 &&
+						d.x < brushArea[1][0] - 5
+					);
 				});
 
 			selected_circles.attr("display", display);

@@ -1,3 +1,7 @@
+import topo_data from "../topology.json" assert { type: "json" };
+import { bar_plot } from "./group_bar.js";
+import { update_link } from "./topology.js";
+
 const scatter_height = d3.select("#scatter").node().offsetHeight; //-
 //d3.select("#label_h1").node().offsetHeight;
 const container_margin = 50;
@@ -27,6 +31,7 @@ const srcIP = (d) => d.src_ip;
 const dstIP = (d) => d.dst_ip;
 const pktSize = (d) => d.pkt_size_byte;
 const swtrace = (d) => d.swtraces;
+const sendTime = (d) => d.send_time;
 
 const scatter_margin = {
 	top: 50,
@@ -44,11 +49,13 @@ export function scatter_plot(parsedData) {
 
 	const [xmin, xmax] = d3.extent(parsedData, xValue);
 	const [ymin, ymax] = d3.extent(parsedData, yValue);
+
 	const x = d3
 		.scaleLinear()
 		.domain([xmin, xmax])
 		.range([scatter_margin.left, scatter_width - scatter_margin.right])
-		.nice();
+		.nice()
+		.clamp(true);
 
 	// acts as a setter if we provide a value
 	// if we do not provide a value like below, it acts as a getter
@@ -69,6 +76,8 @@ export function scatter_plot(parsedData) {
 		source_ip: srcIP(d),
 		size_in_bytes: pktSize(d),
 		swtraces: swtrace(d),
+		raw_x: xValue(d),
+		send_time: sendTime(d),
 		//label: `Source IP: ${srcIP(d)}\nDestination IP: ${dstIP(
 		//	d
 		//)}\nSize: ${pktSize(d)} bytes`,
@@ -90,6 +99,14 @@ export function scatter_plot(parsedData) {
 		.attr("width", scatter_width)
 		.attr("height", scatter_height);
 
+	// calculate brushable area
+	const brushArea = [
+		[scatter_margin.left - 5, scatter_margin.top - 5],
+		[
+			scatter_width - (scatter_margin.right - 5),
+			scatter_height - (scatter_margin.bottom - 5),
+		],
+	];
 	const circles = scatter_svg
 		.selectAll(".dot")
 		.data(marks)
@@ -121,7 +138,7 @@ export function scatter_plot(parsedData) {
 		.text("Queue Depth (avg.)")
 		.style("fill", "grey");
 
-	scatter_svg
+	const xAxis = scatter_svg
 		.append("g")
 		.attr("class", "x_axis")
 		.attr(
@@ -143,16 +160,15 @@ export function scatter_plot(parsedData) {
 		.style("fill", "grey");
 
 	// Create the range slider
-	add_slider_x([xmin, xmax], scatter_svg, x);
-
-	// calculate brushable area
-	const brushArea = [
-		[scatter_margin.left - 10, scatter_margin.top - 10],
-		[
-			scatter_width - (scatter_margin.right - 10),
-			scatter_height - (scatter_margin.bottom - 10),
-		],
-	];
+	add_slider_x(
+		[xmin, xmax],
+		scatter_svg,
+		x,
+		xAxis,
+		circles,
+		color_scale,
+		brushArea
+	);
 
 	// add legends with checkbox
 	if (unique_dst_ip.size <= 3) {
@@ -201,8 +217,8 @@ function addLegend(scatter_svg, color_scale) {
 	}
 }
 
-function add_slider_x(sliderVals, svg, x) {
-	x.clamp(true);
+function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
+	// x.clamp(true);
 	const xMin = x.range()[0];
 	const xMax = x.range()[1];
 
@@ -223,7 +239,7 @@ function add_slider_x(sliderVals, svg, x) {
 		.attr("x1", 10 + x(sliderVals[0]))
 		.attr("x2", 10 + x(sliderVals[1]));
 
-	const handle = slider
+	slider
 		.selectAll(".sliderhandle")
 		.data([0, 1])
 		.enter()
@@ -252,19 +268,118 @@ function add_slider_x(sliderVals, svg, x) {
 		d3.select(this).attr("x", x1);
 		const x2 = x(sliderVals[d == 0 ? 1 : 0]);
 		selRange.attr("x1", 10 + x1).attr("x2", 10 + x2);
+
+		// add tooltip to the handler
+		console.log(Math.round(x.invert(x1)), Math.round(x.invert(x2)));
 	}
+
+	const min_distance = 70;
 
 	function endDrag(event, d) {
 		// invert function converts range value to domain value
-		const v = x.invert(event.x);
+		// console.log(x.domain());
+		let v = x.invert(event.x);
 		const elem = d3.select(this);
+		let past_position = sliderVals[d];
 		sliderVals[d] = v;
-		const v1 = Math.round(Math.min(sliderVals[0], sliderVals[1])),
+		let v1 = Math.round(Math.min(sliderVals[0], sliderVals[1])),
 			v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+
+		if (x(v2 - v1) < x(min_distance)) {
+			if (past_position > v) {
+				v = Math.min(
+					x.domain()[1],
+					sliderVals[d == 0 ? 1 : 0] + x(min_distance)
+				);
+			} else {
+				v = Math.max(
+					x.domain()[0],
+					sliderVals[d == 0 ? 1 : 0] - x(min_distance)
+				);
+			}
+		}
+
+		sliderVals[d] = v;
+		v1 = Math.round(Math.min(sliderVals[0], sliderVals[1]));
+		v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+
 		elem.classed("active", false).attr("x", x(v));
 		selRange.attr("x1", 10 + x(v1)).attr("x2", 10 + x(v2));
 		// console.log(selRange.attr("x1"));
 		// console.log(selRange.attr("x2"));
-		console.log(v1, v2);
+		// console.log(v1, v2);
+		updatePlot(svg, [v1, v2], x, xAxis, circles, color_scale, area);
 	}
+}
+
+// A function that update the plot for a given range on X axis
+function updatePlot(svg, slider_range, x, xAxis, circles, color_scale, area) {
+	d3.selectAll("#added_table").remove();
+	d3.selectAll("#large_circle").remove();
+	d3.select("#table_msg").text("No packet is selected");
+	d3.select("#brush").call(d3.brush().move, null);
+	d3.selectAll(".dot")
+		.style("fill", (d) => color_scale(d.destination_ip))
+		.style("stroke-width", 0.5);
+	// slider range
+	const xmin = slider_range[0];
+	const xmax = slider_range[1];
+
+	// Update X axis
+	const x_scale = d3
+		.scaleLinear()
+		.domain([xmin, xmax])
+		.range([scatter_margin.left, scatter_width - scatter_margin.right]);
+	// .nice(); // nice in this place is not a good idea
+
+	// console.log(x_scale.domain());
+	xAxis.transition().duration(500).call(d3.axisBottom(x_scale));
+
+	// for (let i = 0; i < circles.data().length; i++) {
+	// 	circles.data()[i].x = x_scale(circles.data()[i].raw_x);
+	// }
+	let visible_circle = [];
+	// Update chart
+	circles
+		.filter(function () {
+			// console.log(d3.select(this).data()[0].x);
+			const new_x = x_scale(d3.select(this).data()[0].raw_x);
+			d3.select(this).data()[0].x = new_x;
+
+			if (new_x < area[0][0] + 5 || new_x > area[1][0] - 5) {
+				d3.select(this).attr("display", "none");
+			} else {
+				let ip = d3.select(this).data()[0].destination_ip;
+				let checkbox = d3.select(
+					`input[type="checkbox"][value="${ip}"]`
+				);
+				if (checkbox.property("checked")) {
+					d3.select(this).attr("display", "inline");
+					visible_circle.push(d3.select(this).data()[0]);
+				}
+			}
+			// console.log(d3.select(this).data()[0].x);
+			return d3.select(this);
+		})
+		.transition()
+		.duration(500)
+		.attr("cx", function (d) {
+			return d.x;
+		});
+	bar_plot(visible_circle, topo_data.nodes);
+	update_link(visible_circle);
+
+	// add human readbale date and time
+	const time1 = visible_circle[0].send_time;
+	const time2 = visible_circle[visible_circle.length - 1].send_time;
+
+	const date_text =
+		"From <strong>" +
+		new Date(time1 * 1000).toLocaleString() +
+		"</strong> to <strong>" +
+		new Date(time2 * 1000).toLocaleString() +
+		"</strong>";
+
+	d3.select("#timeline").html(date_text);
+	//  .attr("cy", function (d) { return y(d.Petal_Length); } )
 }
