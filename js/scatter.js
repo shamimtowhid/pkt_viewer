@@ -133,7 +133,7 @@ export function scatter_plot(parsedData) {
 		.attr("font-size", "20px")
 		// .attr("style", "font-weight: bold")
 		.attr("x", -scatter_height / 2 + 30)
-		.attr("y", 20)
+		.attr("y", 50)
 		.attr("transform", "rotate(-90)")
 		.text("Queue Depth (avg.)")
 		.style("fill", "#000");
@@ -381,12 +381,12 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 		// console.log(selRange.attr("x1"));
 		// console.log(selRange.attr("x2"));
 		// console.log(v1, v2);
-		updatePlot(svg, [v1, v2], x, xAxis, circles, color_scale, area);
+		updatePlot([v1, v2], xAxis, circles, color_scale, area);
 	}
 }
 
 // A function that update the plot for a given range on X axis
-function updatePlot(svg, slider_range, x, xAxis, circles, color_scale, area) {
+function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 	d3.selectAll("#added_table").remove();
 	d3.selectAll("#large_circle").remove();
 	d3.select("#table_msg").text("No packet is selected");
