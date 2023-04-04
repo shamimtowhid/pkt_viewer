@@ -18,7 +18,7 @@ const full_svg = d3
 const topo_svg = full_svg.append("g");
 topo_svg.attr("transform", "translate(" + 0 + "," + 0 + ")");
 
-const zoom = d3.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
+const zoom = d3.zoom().scaleExtent([1, 3]).on("zoom", zoomed);
 full_svg.call(zoom);
 
 function zoomed(event) {
@@ -27,13 +27,6 @@ function zoomed(event) {
 	topo_svg.attr("transform", transform);
 	topo_svg.attr("stroke-width", 1 / transform.k);
 }
-
-var projection = d3
-	.geoMercator()
-	.translate([width / 2, height / 2])
-	.scale(400)
-	.center([-80, 65]);
-var path = d3.geoPath().projection(projection);
 
 // full_svg
 // 	.append("text")
@@ -86,6 +79,21 @@ export function draw_topology(pckt_data) {
 
 	// console.log(map, cities);
 	map.then(function (values) {
+		const projection = d3
+			.geoMercator()
+			.translate([width / 2, height / 2])
+			.scale(250)
+			.center([-100, 65]);
+		// const extent = d3.geoBounds(values);
+		// const center = d3.geoCentroid(values);
+		// const scale = Math.max(
+		// 	(extent[1][0] - extent[0][0]) / width,
+		// 	(extent[1][1] - extent[0][1]) / height
+		// );
+		// console.log(scale, center);
+		// projection.scale(scale).center(center);
+		const path = d3.geoPath().projection(projection);
+
 		// draw map
 		topo_svg
 			.selectAll("path")
@@ -138,7 +146,7 @@ export function draw_topology(pckt_data) {
 			.attr("cy", function (d) {
 				return projection([d.longitude, d.lattitude])[1];
 			})
-			.attr("r", "10")
+			.attr("r", "8")
 
 			.style("fill", function (d, i) {
 				return color_scale(d.name);
@@ -195,7 +203,7 @@ export function update_link(pckt_data) {
 		}
 	}
 	// console.log(counter);
-	const scale = d3.scaleLinear().domain([min_val, max_val]).range([1, 10]);
+	const scale = d3.scaleLinear().domain([min_val, max_val]).range([1, 8]);
 	if (min_val == 0 && max_val == 0) {
 		d3.selectAll("line.nodelink").style("stroke-width", 1);
 	} else {

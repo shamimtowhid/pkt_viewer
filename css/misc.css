@@ -62,7 +62,7 @@ th {
 }
 
 .province:hover {
-	fill: red;
+	fill: #d9b38c;
 }
 
 /* .nodes {
