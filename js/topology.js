@@ -83,7 +83,6 @@ export function draw_topology(pckt_data) {
 	const color_scale = d3.scaleOrdinal().domain(sw_names).range(d3.schemeSet1);
 
 	var map = d3.json("../canada.geojson");
-	// var cities = d3.csv("../my_cities.csv");
 
 	// console.log(map, cities);
 	map.then(function (values) {
@@ -97,6 +96,35 @@ export function draw_topology(pckt_data) {
 			.attr("d", path)
 			.append("title")
 			.text((d) => d.properties.name);
+
+		// Initialize the links
+		topo_svg
+			.selectAll("line")
+			.data(topo_data.links)
+			.enter()
+			.append("line")
+			.attr("class", "nodelink")
+			.attr("source", function (d) {
+				return d.source;
+			})
+			.attr("target", function (d) {
+				return d.target;
+			})
+			.attr("x1", (d) => {
+				return projection([d.src_longitude, d.src_lattitude])[0];
+			})
+			.attr("x2", (d) => {
+				return projection([d.target_longitude, d.target_lattitude])[0];
+			})
+			.attr("y1", (d) => {
+				return projection([d.src_longitude, d.src_lattitude])[1];
+			})
+			.attr("y2", (d) => {
+				return projection([d.target_longitude, d.target_lattitude])[1];
+			})
+			.style("stroke", "black")
+			.style("stroke-width", 1);
+
 		// draw points
 		topo_svg
 			.selectAll("circle")
@@ -119,41 +147,8 @@ export function draw_topology(pckt_data) {
 			.on("mousemove", mousemove)
 			.on("mouseleave", mouseleave);
 
-		// Initialize the links
-		topo_svg
-			.selectAll("line")
-			.data(topo_data.links)
-			.enter()
-			.append("line")
-			.attr("class", "nodelink")
-			.attr("source", function (d) {
-				return d.source;
-			})
-			.attr("target", function (d) {
-				return d.target;
-			})
-			.style("stroke", "black")
-			.style("stroke-width", 1);
-
-		// add labels
-		// topo_svg
-		// 	.selectAll("text")
-		// 	.data(topo_data.nodes)
-		// 	.enter()
-		// 	.append("text")
-		// 	.text(function (d) {
-		// 		return d.name;
-		// 	})
-		// 	.attr("x", function (d) {
-		// 		return projection([d.longitude, d.lattitude])[0] + 5;
-		// 	})
-		// 	.attr("y", function (d) {
-		// 		return projection([d.longitude, d.lattitude])[1] + 15;
-		// 	})
-		// 	.attr("class", "node_name");
+		update_link(pckt_data);
 	});
-
-	update_link(pckt_data);
 
 	return topo_data.nodes;
 }
