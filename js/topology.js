@@ -1,8 +1,8 @@
-import data from "../topology.json" assert { type: "json" };
+import topo_data from "../topology.json" assert { type: "json" };
 
 // set the dimensions and margins of the graph
 const container_margin = 50;
-const margin = { top: 10, right: 30, bottom: 30, left: 40 },
+const margin = { top: 20, right: 0, bottom: 20, left: 50 },
 	width = d3.select("#topology").node().offsetWidth - container_margin,
 	height = d3.select("#topology").node().offsetHeight;
 
@@ -10,23 +10,41 @@ const margin = { top: 10, right: 30, bottom: 30, left: 40 },
 const full_svg = d3
 	.select("#topology")
 	.append("svg")
-	.attr("width", width)
-	.attr("height", height);
+	.attr("width", width - margin.left - margin.right)
+	.attr("height", height - margin.top - margin.bottom)
+	.style("background-color", "#c9e8fd")
+	.classed("svg-content", true);
 
-const topo_svg = full_svg
-	.append("g")
-	.attr("transform", "translate(" + 0 + "," + 0 + ")");
+const topo_svg = full_svg.append("g");
+topo_svg.attr("transform", "translate(" + 0 + "," + 0 + ")");
 
-full_svg
-	.append("text")
-	.attr("text-anchor", "middle")
-	.attr("font-size", "20px")
-	// .attr("style", "font-weight: bold")
-	.attr("x", width / 2)
-	.attr("y", 15)
-	// .attr("y", height + margin.top + margin.bottom - 15)
-	.text("Network Topology")
-	.style("fill", "black");
+const zoom = d3.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
+full_svg.call(zoom);
+
+function zoomed(event) {
+	// console.log("hello");
+	const { transform } = event;
+	topo_svg.attr("transform", transform);
+	topo_svg.attr("stroke-width", 1 / transform.k);
+}
+
+var projection = d3
+	.geoMercator()
+	.translate([width / 2, height / 2])
+	.scale(400)
+	.center([-80, 65]);
+var path = d3.geoPath().projection(projection);
+
+// full_svg
+// 	.append("text")
+// 	.attr("text-anchor", "middle")
+// 	.attr("font-size", "20px")
+// 	// .attr("style", "font-weight: bold")
+// 	.attr("x", width / 2)
+// 	.attr("y", 20)
+// 	// .attr("y", height + margin.top + margin.bottom - 15)
+// 	.text("Network Topology")
+// 	.style("fill", "black");
 
 const tooltip = d3
 	.select("#topology")
@@ -58,84 +76,86 @@ const mouseleave = function (d) {
 };
 
 export function draw_topology(pckt_data) {
-	// Initialize the links
-	const link = topo_svg
-		.selectAll("line")
-		.data(data.links)
-		.enter()
-		.append("line")
-		.attr("class", "nodelink")
-		.attr("source", function (d) {
-			return d.source;
-		})
-		.attr("target", function (d) {
-			return d.target;
-		})
-		.style("stroke", "black")
-		.style("stroke-width", 1);
-
 	let sw_names = [];
-	for (let i = 0; i < data.nodes; i++) {
-		sw_names.push(data.nodes[i].name);
+	for (let i = 0; i < topo_data.nodes; i++) {
+		sw_names.push(topo_data.nodes[i].name);
 	}
 	const color_scale = d3.scaleOrdinal().domain(sw_names).range(d3.schemeSet1);
 
-	// Initialize the nodes
-	const node = topo_svg
-		.selectAll("circle")
-		.data(data.nodes)
-		.enter()
-		.append("circle")
-		.attr("r", 10)
-		.style("fill", function (d, i) {
-			return color_scale(d.name);
-		})
-		.on("mouseover", mouseover)
-		.on("mousemove", mousemove)
-		.on("mouseleave", mouseleave);
+	var map = d3.json("../canada.geojson");
+	// var cities = d3.csv("../my_cities.csv");
 
-	// Let's list the force we wanna apply on the network
-	const simulation = d3
-		.forceSimulation(data.nodes) // Force algorithm is applied to data.nodes
-		.force(
-			"link",
-			d3
-				.forceLink() // This force provides links between nodes
-				.id(function (d) {
-					return d.id;
-				}) // This provide  the id of a node
-				.distance(50)
-				.links(data.links) // and this the list of links
-		)
-		.force("charge", d3.forceManyBody().strength(-10)) // This adds repulsion between nodes. Play with the -400 for the repulsion strength
-		.force("center", d3.forceCenter(width / 2, height / 2)) // This force attracts nodes to the center of the svg area
-		.on("end", ticked);
-
-	// This function is run at each iteration of the force algorithm, updating the nodes position.
-	function ticked() {
-		link.attr("x1", function (d) {
-			return d.source.x;
-		})
-			.attr("y1", function (d) {
-				return d.source.y;
+	// console.log(map, cities);
+	map.then(function (values) {
+		// draw map
+		topo_svg
+			.selectAll("path")
+			.data(values.features)
+			.enter()
+			.append("path")
+			.attr("class", "province")
+			.attr("d", path)
+			.append("title")
+			.text((d) => d.properties.name);
+		// draw points
+		topo_svg
+			.selectAll("circle")
+			.data(topo_data.nodes)
+			.enter()
+			.append("circle")
+			.attr("class", "nodes")
+			.attr("cx", function (d) {
+				return projection([d.longitude, d.lattitude])[0];
 			})
-			.attr("x2", function (d) {
-				return d.target.x;
+			.attr("cy", function (d) {
+				return projection([d.longitude, d.lattitude])[1];
 			})
-			.attr("y2", function (d) {
-				return d.target.y;
-			});
+			.attr("r", "10")
 
-		node.attr("cx", function (d) {
-			return d.x;
-		}).attr("cy", function (d) {
-			return d.y;
-		});
-	}
+			.style("fill", function (d, i) {
+				return color_scale(d.name);
+			})
+			.on("mouseover", mouseover)
+			.on("mousemove", mousemove)
+			.on("mouseleave", mouseleave);
+
+		// Initialize the links
+		topo_svg
+			.selectAll("line")
+			.data(topo_data.links)
+			.enter()
+			.append("line")
+			.attr("class", "nodelink")
+			.attr("source", function (d) {
+				return d.source;
+			})
+			.attr("target", function (d) {
+				return d.target;
+			})
+			.style("stroke", "black")
+			.style("stroke-width", 1);
+
+		// add labels
+		// topo_svg
+		// 	.selectAll("text")
+		// 	.data(topo_data.nodes)
+		// 	.enter()
+		// 	.append("text")
+		// 	.text(function (d) {
+		// 		return d.name;
+		// 	})
+		// 	.attr("x", function (d) {
+		// 		return projection([d.longitude, d.lattitude])[0] + 5;
+		// 	})
+		// 	.attr("y", function (d) {
+		// 		return projection([d.longitude, d.lattitude])[1] + 15;
+		// 	})
+		// 	.attr("class", "node_name");
+	});
 
 	update_link(pckt_data);
 
-	return data.nodes;
+	return topo_data.nodes;
 }
 
 export function update_link(pckt_data) {

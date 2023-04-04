@@ -54,3 +54,23 @@ th {
 .bar_g line {
 	stroke: #ddd;
 }
+
+.province {
+	fill: #f0e4dd;
+	stroke: #000;
+	stroke-width: 0.5;
+}
+
+.province:hover {
+	fill: red;
+}
+
+/* .nodes {
+	fill: #3c373d;
+}
+
+.node_name {
+	font-family: sans-serif;
+	font-size: 11px;
+	fill: #3c373d;
+} */
