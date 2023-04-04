@@ -39,7 +39,7 @@ const scatter_margin = {
 	bottom: 100,
 	left: 100,
 };
-const radius = 3;
+const radius = 5;
 let ts1, ts2;
 const color_list = ["#1b9e77", "#d95f02", "#7570b3"];
 
@@ -133,7 +133,7 @@ export function scatter_plot(parsedData) {
 		.attr("font-size", "20px")
 		// .attr("style", "font-weight: bold")
 		.attr("x", -scatter_height / 2 + 30)
-		.attr("y", 50)
+		.attr("y", 30)
 		.attr("transform", "rotate(-90)")
 		.text("Queue Depth (avg.)")
 		.style("fill", "#000");
@@ -155,7 +155,7 @@ export function scatter_plot(parsedData) {
 		.attr("font-size", "20px")
 		// .attr("style", "font-weight: bold")
 		.attr("x", scatter_width / 2)
-		.attr("y", scatter_height - 50)
+		.attr("y", scatter_height - 10)
 		.text("Time (second)")
 		.style("fill", "#000");
 
@@ -225,7 +225,7 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 	const slider = svg
 		.append("g")
 		.attr("class", "slider")
-		.attr("transform", `translate(0, ${scatter_height - 35})`);
+		.attr("transform", `translate(0, ${scatter_height - 55})`);
 
 	slider
 		.append("line")
@@ -327,7 +327,7 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 		// updatePlot(svg, [v1, v2], x, xAxis, circles, color_scale, area);
 	}
 
-	const min_distance = 70;
+	const min_distance = x(1); // equivalent to 100 seconds
 	function endDrag(event, d) {
 		// invert function converts range value to domain value
 		// console.log(x.domain());
@@ -338,16 +338,16 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 		let v1 = Math.round(Math.min(sliderVals[0], sliderVals[1])),
 			v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
 
-		if (x(v2 - v1) < x(min_distance)) {
+		if (v2 - v1 < min_distance) {
 			if (past_position > v) {
 				v = Math.min(
 					x.domain()[1],
-					sliderVals[d == 0 ? 1 : 0] + x(min_distance)
+					sliderVals[d == 0 ? 1 : 0] + min_distance
 				);
 			} else {
 				v = Math.max(
 					x.domain()[0],
-					sliderVals[d == 0 ? 1 : 0] - x(min_distance)
+					sliderVals[d == 0 ? 1 : 0] - min_distance
 				);
 			}
 		}
@@ -367,7 +367,10 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 			.attr("x", 10 + x(v1))
 			.attr("y", 25)
 			.style("fill", "#000")
-			.style("text-anchor", "middle");
+			.style("text-anchor", "middle")
+			.transition()
+			.duration(1000)
+			.remove();
 
 		slider
 			.append("text")
@@ -376,7 +379,10 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 			.attr("x", 10 + x(v2))
 			.attr("y", 25)
 			.style("fill", "#000")
-			.style("text-anchor", "middle");
+			.style("text-anchor", "middle")
+			.transition()
+			.duration(1000)
+			.remove();
 
 		// console.log(selRange.attr("x1"));
 		// console.log(selRange.attr("x2"));
@@ -454,5 +460,4 @@ function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 		"</strong>";
 
 	d3.select("#timeline").html(date_text);
-	//  .attr("cy", function (d) { return y(d.Petal_Length); } )
 }

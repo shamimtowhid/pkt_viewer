@@ -48,7 +48,7 @@ export function tabulate(data, columns, scatter_svg, color_scale, nodes) {
 					.attr("id", "large_circle")
 					.attr("cx", data_point[0]["x"])
 					.attr("cy", data_point[0]["y"])
-					.attr("r", 10)
+					.attr("r", 12)
 					.attr("stroke", "#000")
 					.attr("stroke-width", 2)
 					.attr("display", "inline")
