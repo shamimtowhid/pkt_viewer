@@ -35,7 +35,7 @@ const sendTime = (d) => d.send_time;
 
 const scatter_margin = {
 	top: 50,
-	right: 50,
+	right: 80,
 	bottom: 100,
 	left: 100,
 };
@@ -61,12 +61,13 @@ export function scatter_plot(parsedData) {
 	// if we do not provide a value like below, it acts as a getter
 	//console.log(x.domain());
 	//console.log(x.range());
-
+	// console.log(ymin, ymax);
 	const y = d3
 		.scaleLinear()
 		.domain([ymin, ymax])
 		.range([scatter_height - scatter_margin.bottom, scatter_margin.top]) // this range is flipped because origin is at upper left corner
-		.nice();
+		.nice()
+		.clamp(true);
 
 	const marks = parsedData.map((d) => ({
 		x: x(xValue(d)),
@@ -77,6 +78,7 @@ export function scatter_plot(parsedData) {
 		size_in_bytes: pktSize(d),
 		swtraces: swtrace(d),
 		raw_x: xValue(d),
+		raw_y: yValue(d),
 		send_time: sendTime(d),
 		//label: `Source IP: ${srcIP(d)}\nDestination IP: ${dstIP(
 		//	d
@@ -119,7 +121,7 @@ export function scatter_plot(parsedData) {
 		.style("fill", (d) => color_scale(d.destination_ip));
 
 	// adding the X and Y axis
-	scatter_svg
+	const yAxis = scatter_svg
 		.append("g")
 		.attr("class", "y_axis")
 		.attr("transform", `translate(${scatter_margin.left}, 0)`)
@@ -165,6 +167,16 @@ export function scatter_plot(parsedData) {
 		scatter_svg,
 		x,
 		xAxis,
+		circles,
+		color_scale,
+		brushArea
+	);
+
+	add_slider_y(
+		[ymin, ymax],
+		scatter_svg,
+		y,
+		yAxis,
 		circles,
 		color_scale,
 		brushArea
@@ -275,7 +287,7 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 		// 	Math.round(x.invert(x2 + 10))
 		// );
 		d3.selectAll(".handle_tip").remove();
-		// let current_val =
+
 		slider
 			.append("text")
 			.attr("class", "handle_tip")
@@ -284,6 +296,27 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 			.attr("y", 25)
 			.style("fill", "#000")
 			.style("text-anchor", "middle");
+
+		// svg.append("line")
+		// 	.attr("class", "handle_tip")
+		// 	// .text(Math.round(x.invert(x1)))
+		// 	.attr("x1", x1)
+		// 	.attr("y1", scatter_height - 55)
+		// 	.attr("x2", x1)
+		// 	.attr("y2", scatter_height - scatter_margin.bottom)
+		// 	.style("stroke", "#000")
+		// 	.style("stroke-width", 1);
+		// // .style("text-anchor", "middle");
+
+		// svg.append("line")
+		// 	.attr("class", "handle_tip")
+		// 	// .text(Math.round(x.invert(x1)))
+		// 	.attr("x1", x2)
+		// 	.attr("y1", scatter_height - 55)
+		// 	.attr("x2", x2)
+		// 	.attr("y2", scatter_height - scatter_margin.bottom)
+		// 	.style("stroke", "#000")
+		// 	.style("stroke-width", 1);
 
 		slider
 			.append("text")
@@ -327,7 +360,7 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 		// updatePlot(svg, [v1, v2], x, xAxis, circles, color_scale, area);
 	}
 
-	const min_distance = x(1); // equivalent to 100 seconds
+	const min_distance = 100; //seconds
 	function endDrag(event, d) {
 		// invert function converts range value to domain value
 		// console.log(x.domain());
@@ -423,9 +456,15 @@ function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 		.filter(function () {
 			// console.log(d3.select(this).data()[0].x);
 			const new_x = x_scale(d3.select(this).data()[0].raw_x);
+			const new_y = d3.select(this).data()[0].y;
 			d3.select(this).data()[0].x = new_x;
 
-			if (new_x < area[0][0] + 5 || new_x > area[1][0] - 5) {
+			if (
+				new_x < area[0][0] + 5 ||
+				new_x > area[1][0] - 5 ||
+				new_y < area[0][1] + 5 ||
+				new_y > area[1][1] - 5
+			) {
 				d3.select(this).attr("display", "none");
 			} else {
 				let ip = d3.select(this).data()[0].destination_ip;
@@ -460,4 +499,265 @@ function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 		"</strong>";
 
 	d3.select("#timeline").html(date_text);
+}
+
+function add_slider_y(sliderVals, svg, y, yAxis, circles, color_scale, area) {
+	// y.clamp(true);
+	const yMin = y.range()[0];
+	const yMax = y.range()[1];
+
+	const slider = svg
+		.append("g")
+		.attr("class", "slider")
+		.attr("transform", `translate(${scatter_width - 30}, 0)`);
+
+	slider
+		.append("line")
+		.attr("class", "track")
+		.attr("y1", 8 + y.range()[0])
+		.attr("y2", 8 + y.range()[1]);
+
+	const selRange = slider
+		.append("line")
+		.attr("class", "sel-range")
+		.attr("y1", 8 + y(sliderVals[0]))
+		.attr("y2", 8 + y(sliderVals[1]));
+
+	slider
+		.selectAll(".sliderhandle")
+		.data([0, 1])
+		.enter()
+		.append("rect", ".track-overlay")
+		.attr("class", "sliderhandle")
+		.attr("y", (d) => y(sliderVals[d]))
+		.attr("x", -10)
+		.attr("rx", 3)
+		.attr("height", 16)
+		.attr("width", 20)
+		.call(
+			d3.drag().on("start", startDrag).on("drag", drag).on("end", endDrag)
+		);
+
+	function startDrag() {
+		d3.select(this).raise().classed("active", true);
+	}
+
+	function drag(event, d) {
+		// console.log(d);
+		let y1 = event.y;
+		if (y1 > yMin) {
+			y1 = yMin;
+		} else if (y1 < yMax) {
+			y1 = yMax;
+		}
+		// console.log(yMax, yMin, y1);
+		d3.select(this).attr("y", y1);
+		const y2 = y(sliderVals[d == 0 ? 1 : 0]);
+		selRange.attr("y1", 8 + y1).attr("y2", 8 + y2);
+
+		// add tooltip to the handler
+		// console.log(
+		// 	Math.round(x.invert(x1 + 10)),
+		// 	Math.round(x.invert(x2 + 10))
+		// );
+		d3.selectAll(".handle_tip").remove();
+
+		slider
+			.append("text")
+			.attr("class", "handle_tip")
+			.text(Math.round(y.invert(y1)))
+			.attr("x", 22)
+			.attr("y", 13 + y1)
+			.style("fill", "#000")
+			.style("text-anchor", "middle");
+
+		// svg.append("line")
+		// 	.attr("class", "handle_tip")
+		// 	// .text(Math.round(x.invert(x1)))
+		// 	.attr("x1", x1)
+		// 	.attr("y1", scatter_height - 55)
+		// 	.attr("x2", x1)
+		// 	.attr("y2", scatter_height - scatter_margin.bottom)
+		// 	.style("stroke", "#000")
+		// 	.style("stroke-width", 1);
+		// // .style("text-anchor", "middle");
+
+		// svg.append("line")
+		// 	.attr("class", "handle_tip")
+		// 	// .text(Math.round(x.invert(x1)))
+		// 	.attr("x1", x2)
+		// 	.attr("y1", scatter_height - 55)
+		// 	.attr("x2", x2)
+		// 	.attr("y2", scatter_height - scatter_margin.bottom)
+		// 	.style("stroke", "#000")
+		// 	.style("stroke-width", 1);
+
+		slider
+			.append("text")
+			.attr("class", "handle_tip")
+			.text(Math.round(y.invert(y2)))
+			.attr("x", 22)
+			.attr("y", 13 + y2)
+			.style("fill", "#000")
+			.style("text-anchor", "middle");
+		// for real time updating the plot
+		// let v = x.invert(event.x);
+		// const elem = d3.select(this);
+		// let past_position = sliderVals[d];
+		// sliderVals[d] = v;
+		// let v1 = Math.round(Math.min(sliderVals[0], sliderVals[1])),
+		// 	v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+
+		// if (x(v2 - v1) < x(min_distance)) {
+		// 	if (past_position > v) {
+		// 		v = Math.min(
+		// 			x.domain()[1],
+		// 			sliderVals[d == 0 ? 1 : 0] + x(min_distance)
+		// 		);
+		// 	} else {
+		// 		v = Math.max(
+		// 			x.domain()[0],
+		// 			sliderVals[d == 0 ? 1 : 0] - x(min_distance)
+		// 		);
+		// 	}
+		// }
+
+		// sliderVals[d] = v;
+		// v1 = Math.round(Math.min(sliderVals[0], sliderVals[1]));
+		// v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+
+		// elem.classed("active", false).attr("x", x(v));
+		// selRange.attr("x1", 10 + x(v1)).attr("x2", 10 + x(v2));
+		// // console.log(selRange.attr("x1"));
+		// // console.log(selRange.attr("x2"));
+		// // console.log(v1, v2);
+		// updatePlot(svg, [v1, v2], x, xAxis, circles, color_scale, area);
+	}
+
+	const min_distance = 8; // avg. qdepth
+	function endDrag(event, d) {
+		// invert function converts range value to domain value
+		// console.log(x.domain());
+		let v = y.invert(event.y);
+		const elem = d3.select(this);
+		let past_position = sliderVals[d];
+		sliderVals[d] = v;
+		let v1 = Math.round(Math.min(sliderVals[0], sliderVals[1])),
+			v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+		// console.log(min_distance);
+		if (v2 - v1 < min_distance) {
+			if (past_position > v) {
+				v = Math.min(
+					y.domain()[1],
+					sliderVals[d == 0 ? 1 : 0] + min_distance
+				);
+			} else {
+				v = Math.max(
+					y.domain()[0],
+					sliderVals[d == 0 ? 1 : 0] - min_distance
+				);
+			}
+		}
+
+		sliderVals[d] = v;
+		v1 = Math.round(Math.min(sliderVals[0], sliderVals[1]));
+		v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
+
+		elem.classed("active", false).attr("y", y(v));
+		selRange.attr("y1", 8 + y(v1)).attr("y2", 8 + y(v2));
+
+		d3.selectAll(".handle_tip").remove();
+		slider
+			.append("text")
+			.attr("class", "handle_tip")
+			.text(Math.round(v1))
+			.attr("x", 22)
+			.attr("y", 13 + y(v1))
+			.style("fill", "#000")
+			.style("text-anchor", "middle")
+			.transition()
+			.duration(1000)
+			.remove();
+
+		slider
+			.append("text")
+			.attr("class", "handle_tip")
+			.text(Math.round(v2))
+			.attr("x", 22)
+			.attr("y", 13 + y(v2))
+			.style("fill", "#000")
+			.style("text-anchor", "middle")
+			.transition()
+			.duration(1000)
+			.remove();
+
+		// console.log(selRange.attr("x1"));
+		// console.log(selRange.attr("x2"));
+		// console.log(v1, v2);
+		updatePlot_y([v1, v2], yAxis, circles, color_scale, area);
+	}
+}
+
+// A function that update the plot for a given range on Y axis
+function updatePlot_y(slider_range, yAxis, circles, color_scale, area) {
+	d3.selectAll("#added_table").remove();
+	d3.selectAll("#large_circle").remove();
+	d3.select("#table_msg").text("No packet is selected");
+	d3.select("#brush").call(d3.brush().move, null);
+	d3.selectAll(".dot")
+		.style("fill", (d) => color_scale(d.destination_ip))
+		.style("stroke-width", 0.5);
+	// slider range
+	const ymin = slider_range[0];
+	const ymax = slider_range[1];
+	// console.log(ymin, ymax);
+	// Update Y axis
+	const y_scale = d3
+		.scaleLinear()
+		.domain([ymin, ymax])
+		.range([scatter_height - scatter_margin.bottom, scatter_margin.top]); // this range is flipped because origin is at upper left corner
+	// .nice(); // nice in this place is not a good idea
+
+	// console.log(x_scale.domain());
+	yAxis.transition().duration(500).call(d3.axisLeft(y_scale));
+
+	// for (let i = 0; i < circles.data().length; i++) {
+	// 	circles.data()[i].x = x_scale(circles.data()[i].raw_x);
+	// }
+	let visible_circle = [];
+	// Update chart
+	circles
+		.filter(function () {
+			// console.log(d3.select(this).data()[0].x);
+			const new_y = y_scale(d3.select(this).data()[0].raw_y);
+			const new_x = d3.select(this).data()[0].x;
+			d3.select(this).data()[0].y = new_y;
+
+			if (
+				new_y < area[0][1] + 5 ||
+				new_y > area[1][1] - 5 ||
+				new_x < area[0][0] + 5 ||
+				new_x > area[1][0] - 5
+			) {
+				d3.select(this).attr("display", "none");
+			} else {
+				let ip = d3.select(this).data()[0].destination_ip;
+				let checkbox = d3.select(
+					`input[type="checkbox"][value="${ip}"]`
+				);
+				if (checkbox.property("checked")) {
+					d3.select(this).attr("display", "inline");
+					visible_circle.push(d3.select(this).data()[0]);
+				}
+			}
+			// console.log(d3.select(this).data()[0].x);
+			return d3.select(this);
+		})
+		.transition()
+		.duration(500)
+		.attr("cy", function (d) {
+			return d.y;
+		});
+	bar_plot(visible_circle, topo_data.nodes);
+	update_link(visible_circle);
 }

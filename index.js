@@ -51,7 +51,9 @@ const main = async () => {
 					return (
 						selected == d.destination_ip &&
 						d.x > brushArea[0][0] + 5 &&
-						d.x < brushArea[1][0] - 5
+						d.x < brushArea[1][0] - 5 &&
+						d.y > brushArea[0][1] + 5 &&
+						d.y < brushArea[1][1] - 5
 					);
 				});
 
@@ -91,6 +93,7 @@ const main = async () => {
 					return d3.select(this).attr("display") === "inline";
 				})
 				.filter((d) => {
+					// console.log(d)
 					if (x0 <= d.x && d.x < x1 && y0 <= d.y && d.y < y1) {
 						value.add(d);
 						return d3.select(this);
