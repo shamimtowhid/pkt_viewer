@@ -58,7 +58,7 @@ th {
 .province {
 	fill: #f0e4dd;
 	stroke: #000;
-	stroke-width: 0.5;
+	stroke-width: 0.3;
 }
 
 .province:hover {

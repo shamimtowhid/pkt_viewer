@@ -2,7 +2,7 @@ import topo_data from "../topology.json" assert { type: "json" };
 
 // set the dimensions and margins of the graph
 const container_margin = 50;
-const margin = { top: 20, right: 0, bottom: 20, left: 50 },
+const margin = { top: 20, right: 20, bottom: 20, left: 80 },
 	width = d3.select("#topology").node().offsetWidth - container_margin,
 	height = d3.select("#topology").node().offsetHeight;
 
@@ -17,27 +17,6 @@ const full_svg = d3
 
 const topo_svg = full_svg.append("g");
 topo_svg.attr("transform", "translate(" + 0 + "," + 0 + ")");
-
-const zoom = d3.zoom().scaleExtent([1, 3]).on("zoom", zoomed);
-full_svg.call(zoom);
-
-function zoomed(event) {
-	// console.log("hello");
-	const { transform } = event;
-	topo_svg.attr("transform", transform);
-	topo_svg.attr("stroke-width", 1 / transform.k);
-}
-
-// full_svg
-// 	.append("text")
-// 	.attr("text-anchor", "middle")
-// 	.attr("font-size", "20px")
-// 	// .attr("style", "font-weight: bold")
-// 	.attr("x", width / 2)
-// 	.attr("y", 20)
-// 	// .attr("y", height + margin.top + margin.bottom - 15)
-// 	.text("Network Topology")
-// 	.style("fill", "black");
 
 const tooltip = d3
 	.select("#topology")
@@ -81,19 +60,38 @@ export function draw_topology(pckt_data) {
 	map.then(function (values) {
 		const projection = d3
 			.geoMercator()
-			.translate([width / 2, height / 2])
-			.scale(250)
-			.center([-100, 65]);
-		// const extent = d3.geoBounds(values);
-		// const center = d3.geoCentroid(values);
-		// const scale = Math.max(
-		// 	(extent[1][0] - extent[0][0]) / width,
-		// 	(extent[1][1] - extent[0][1]) / height
-		// );
-		// console.log(scale, center);
-		// projection.scale(scale).center(center);
-		const path = d3.geoPath().projection(projection);
+			.translate([
+				(width - margin.left - margin.right) / 2,
+				(height - margin.top - margin.bottom) / 2,
+			])
+			.scale(380)
+			.center([-100, 60]);
 
+		const path = d3.geoPath().projection(projection);
+		const bounds = path.bounds(values);
+
+		const zoom = d3
+			.zoom()
+			.scaleExtent([1, 10])
+			.translateExtent([
+				[bounds[0][0], bounds[0][1]],
+				[bounds[1][0], bounds[1][1]],
+			])
+			.extent([
+				[bounds[0][0], bounds[0][1]],
+				[bounds[1][0], bounds[1][1]],
+			])
+			.on("zoom", zoomed);
+
+		full_svg.call(zoom);
+
+		function zoomed(event) {
+			const { transform } = event;
+			topo_svg.attr("transform", transform);
+			topo_svg.attr("stroke-width", 1 / transform.k);
+		}
+
+		// console.log(bounds);
 		// draw map
 		topo_svg
 			.selectAll("path")
