@@ -135,7 +135,7 @@ export function scatter_plot(parsedData) {
 		.attr("font-size", "20px")
 		// .attr("style", "font-weight: bold")
 		.attr("x", -scatter_height / 2 + 30)
-		.attr("y", 30)
+		.attr("y", 48)
 		.attr("transform", "rotate(-90)")
 		.text("Queue Depth (avg.)")
 		.style("fill", "#000");
