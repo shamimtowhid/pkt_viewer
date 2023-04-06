@@ -308,38 +308,38 @@ export function bar_plot(data, nodes) {
 	return bar_svg;
 }
 
-function add_legends(subgroups, color) {
-	// const size = 20;
-	// // Add one dot in the legend for each name.
-	// full_svg
-	// 	.selectAll("#legend")
-	// 	.data(subgroups)
-	// 	.enter()
-	// 	.append("rect")
-	// 	.attr("class", "legend_element")
-	// 	.attr("x", function (d, i) {
-	// 		return margin.left + i * 100;
-	// 	})
-	// 	.attr("y", 5)
-	// 	.attr("width", size)
-	// 	.attr("height", size)
-	// 	.style("fill", function (d) {
-	// 		return color(d);
-	// 	});
+// function add_legends(subgroups, color) {
+// const size = 20;
+// // Add one dot in the legend for each name.
+// full_svg
+// 	.selectAll("#legend")
+// 	.data(subgroups)
+// 	.enter()
+// 	.append("rect")
+// 	.attr("class", "legend_element")
+// 	.attr("x", function (d, i) {
+// 		return margin.left + i * 100;
+// 	})
+// 	.attr("y", 5)
+// 	.attr("width", size)
+// 	.attr("height", size)
+// 	.style("fill", function (d) {
+// 		return color(d);
+// 	});
 
-	// Add one dot in the legend for each name.
-	full_svg
-		// .selectAll("bar_labels")
-		// .data(subgroups)
-		// .enter()
-		.append("text")
-		.attr("id", "pckt_num")
-		.attr("x", margin.left)
-		.attr("y", 18)
-		.text(function (d) {
-			return d;
-		})
-		.attr("text-anchor", "right")
-		.attr("font-size", "20px");
-	// .style("alignment-baseline", "middle");
-}
+// Add one dot in the legend for each name.
+// full_svg
+// .selectAll("bar_labels")
+// .data(subgroups)
+// .enter()
+// 		.append("text")
+// 		.attr("id", "pckt_num")
+// 		.attr("x", margin.left)
+// 		.attr("y", 18)
+// 		.text(function (d) {
+// 			return d;
+// 		})
+// 		.attr("text-anchor", "right")
+// 		.attr("font-size", "20px");
+// 	// .style("alignment-baseline", "middle");
+// }
