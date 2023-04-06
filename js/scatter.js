@@ -94,7 +94,7 @@ export function scatter_plot(parsedData) {
 
 	const color_scale = d3
 		.scaleOrdinal()
-		.domain(d3.extent(parsedData, dstIP))
+		.domain(d3.extent(parsedData, dstIP).sort())
 		.range(color_values); // color is selected by using colorbrewer2
 
 	const scatter_svg = d3

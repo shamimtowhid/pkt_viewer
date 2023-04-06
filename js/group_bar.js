@@ -176,7 +176,7 @@ export function bar_plot(data, nodes) {
 			? bar_color_list.slice(0, subgroups.length)
 			: [bar_color_list[0]];
 	// color palette = one color per subgroup
-	const color = d3.scaleOrdinal().domain(subgroups).range(bar_color);
+	const color = d3.scaleOrdinal().domain(subgroups.sort()).range(bar_color);
 
 	const min_bar_height = 3; // pixels
 	// Show the bars

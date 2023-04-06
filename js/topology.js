@@ -60,7 +60,10 @@ export function draw_topology(pckt_data) {
 			? sw_color_list.slice(0, sw_names.length)
 			: [sw_color_list[0]];
 	// color palette = one color per subgroup
-	const color_scale = d3.scaleOrdinal().domain(sw_names).range(sw_color);
+	const color_scale = d3
+		.scaleOrdinal()
+		.domain(sw_names.sort())
+		.range(sw_color);
 	// console.log(sw_names, sw_color, topo_data.nodes);
 	// const color_scale = d3.scaleOrdinal().domain(sw_names).range(d3.schemeSet1);
 
