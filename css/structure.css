@@ -6,7 +6,7 @@ body {
 	overflow: hidden;
 	font-family: "Arial";
 	font-size: 14px;
-	/* background-color: #000; */
+	background-color: #faf9f6;
 }
 
 #container {
@@ -18,10 +18,11 @@ body {
 	height: 95%;
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
+	/* background-color: faf9f6; */
 }
 
 .box {
-	background-color: #fff;
+	background-color: #faf9f6;
 	padding: 0px;
 }
 
@@ -65,7 +66,7 @@ body {
 }
 
 #container::-webkit-scrollbar-thumb {
-	background-color: #fff;
+	background-color: #faf9f6;
 }
 
 #table::-webkit-scrollbar {
@@ -73,5 +74,5 @@ body {
 }
 
 #table::-webkit-scrollbar-thumb {
-	background-color: #fff;
+	background-color: #faf9f6;
 }

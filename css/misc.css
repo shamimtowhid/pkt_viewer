@@ -17,7 +17,7 @@
 th {
 	position: sticky;
 	top: 0; /* required for stickiness */
-	background-color: #fff;
+	background-color: #faf9f6;
 	font-weight: normal;
 	border-bottom: 2px solid #ddd;
 	font-size: 20px;

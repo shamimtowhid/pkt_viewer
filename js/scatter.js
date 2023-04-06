@@ -41,7 +41,9 @@ const scatter_margin = {
 };
 const radius = 5;
 let ts1, ts2;
-const color_list = ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e"];
+// const color_list = ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e"];
+// const color_list = ["#7fc97f", "#beaed4", "#fdc086", "#ffff99", "#386cb0"];
+const color_list = ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854"];
 
 export function scatter_plot(parsedData) {
 	ts1 = parsedData[0].send_time;
@@ -215,8 +217,9 @@ function addLegend(scatter_svg, color_scale) {
 			.attr("width", 30)
 			.attr("height", 30)
 			.style("accent-color", color_scale(host_list[i]))
+			// .style("stroke", "white")
 			.html(
-				`<input name='host' class='larger' value=${host_list[i]} type='checkbox' checked >`
+				`<input name='host' class='check' value=${host_list[i]} type='checkbox' checked >`
 			);
 
 		scatter_svg
