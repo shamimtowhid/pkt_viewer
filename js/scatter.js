@@ -37,7 +37,7 @@ const scatter_margin = {
 	top: 50,
 	right: 80,
 	bottom: 100,
-	left: 100,
+	left: 80,
 };
 const radius = 5;
 let ts1, ts2;
@@ -135,7 +135,7 @@ export function scatter_plot(parsedData) {
 		.attr("font-size", "20px")
 		// .attr("style", "font-weight: bold")
 		.attr("x", -scatter_height / 2 + 30)
-		.attr("y", 48)
+		.attr("y", 35)
 		.attr("transform", "rotate(-90)")
 		.text("Queue Depth (avg.)")
 		.style("fill", "#000");
@@ -189,11 +189,12 @@ export function scatter_plot(parsedData) {
 
 	// add human readbale date and time
 	const date_text =
-		"From <strong>" +
+		"Total " +
+		parsedData.length.toString() +
+		" packets collected from " +
 		new Date(ts1 * 1000).toLocaleString() +
-		"</strong> to <strong>" +
-		new Date(ts2 * 1000).toLocaleString() +
-		"</strong>";
+		" to " +
+		new Date(ts2 * 1000).toLocaleString();
 
 	d3.select("#timeline").html(date_text);
 
@@ -210,7 +211,7 @@ function addLegend(scatter_svg, color_scale) {
 			.append("foreignObject")
 			.attr("class", "checkbox")
 			.attr("x", scatter_margin.left + i * 100)
-			.attr("y", 5)
+			.attr("y", 15)
 			.attr("width", 30)
 			.attr("height", 30)
 			.style("accent-color", color_scale(host_list[i]))
@@ -222,7 +223,7 @@ function addLegend(scatter_svg, color_scale) {
 			.append("text")
 			.attr("class", "larger")
 			.attr("x", scatter_margin.left + i * 100 + 30)
-			.attr("y", 25)
+			.attr("y", 35)
 			.text(label)
 			.attr("fill", color_scale(host_list[i]))
 			.attr("font-size", "20");
@@ -460,10 +461,10 @@ function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 			d3.select(this).data()[0].x = new_x;
 
 			if (
-				new_x < area[0][0] + 5 ||
-				new_x > area[1][0] - 5 ||
-				new_y < area[0][1] + 5 ||
-				new_y > area[1][1] - 5
+				new_x < area[0][0] ||
+				new_x > area[1][0] ||
+				new_y < area[0][1] ||
+				new_y > area[1][1]
 			) {
 				d3.select(this).attr("display", "none");
 			} else {
@@ -491,14 +492,14 @@ function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 	const time1 = visible_circle[0].send_time;
 	const time2 = visible_circle[visible_circle.length - 1].send_time;
 
-	const date_text =
-		"From <strong>" +
-		new Date(time1 * 1000).toLocaleString() +
-		"</strong> to <strong>" +
-		new Date(time2 * 1000).toLocaleString() +
-		"</strong>";
+	// const date_text =
+	// 	"From <strong>" +
+	// 	new Date(time1 * 1000).toLocaleString() +
+	// 	"</strong> to <strong>" +
+	// 	new Date(time2 * 1000).toLocaleString() +
+	// 	"</strong>";
 
-	d3.select("#timeline").html(date_text);
+	// d3.select("#timeline").html(date_text);
 }
 
 function add_slider_y(sliderVals, svg, y, yAxis, circles, color_scale, area) {
@@ -509,7 +510,7 @@ function add_slider_y(sliderVals, svg, y, yAxis, circles, color_scale, area) {
 	const slider = svg
 		.append("g")
 		.attr("class", "slider")
-		.attr("transform", `translate(${scatter_width - 30}, 0)`);
+		.attr("transform", `translate(${scatter_width - 40}, 0)`);
 
 	slider
 		.append("line")
@@ -734,10 +735,10 @@ function updatePlot_y(slider_range, yAxis, circles, color_scale, area) {
 			d3.select(this).data()[0].y = new_y;
 
 			if (
-				new_y < area[0][1] + 5 ||
-				new_y > area[1][1] - 5 ||
-				new_x < area[0][0] + 5 ||
-				new_x > area[1][0] - 5
+				new_y < area[0][1] ||
+				new_y > area[1][1] ||
+				new_x < area[0][0] ||
+				new_x > area[1][0]
 			) {
 				d3.select(this).attr("display", "none");
 			} else {

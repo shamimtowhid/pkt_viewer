@@ -21,6 +21,10 @@ const main = async () => {
 		return +a.send_time - +b.send_time;
 	});
 
+	d3.select("#pckt_num").text(
+		"Total packets: " + parsedData.length.toString()
+	);
+
 	// scatter plot
 	const [scatter_svg, circles, brushArea, color_scale] =
 		scatter_plot(parsedData);
@@ -50,10 +54,10 @@ const main = async () => {
 				.filter((d) => {
 					return (
 						selected == d.destination_ip &&
-						d.x > brushArea[0][0] - 5 &&
-						d.x < brushArea[1][0] - 5 &&
+						d.x > brushArea[0][0] &&
+						d.x < brushArea[1][0] &&
 						d.y > brushArea[0][1] &&
-						d.y < brushArea[1][1] + 5
+						d.y < brushArea[1][1]
 					);
 				});
 

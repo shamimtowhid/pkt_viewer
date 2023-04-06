@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
-		<title>PcktViz</title>
+		<title>Network Packet Analysis</title>
 		<link rel="stylesheet" type="text/css" href="./css/structure.css" />
 		<link rel="stylesheet" type="text/css" href="./css/scatter.css" />
 		<link rel="stylesheet" type="text/css" href="./css/misc.css" />
@@ -16,17 +16,23 @@
 
 	<body>
 		<div id="heading">
-			<p id="appname">PcktViz</p>
+			<p id="appname">Network Packet Analysis</p>
 			<p id="timeline"></p>
 		</div>
 		<div id="container">
-			<div class="box" id="scatter"></div>
-			<div class="box" id="bar"></div>
+			<div class="box" id="scatter">
+				<p id="scatter_title">Network Packet</p>
+			</div>
+			<div class="box" id="bar">
+				<p id="bar_title">Router Status</p>
+			</div>
 			<div class="box" id="third_container">
 				<p id="table_msg">No packet is selected</p>
 				<div id="table"></div>
 			</div>
-			<div class="box" id="topology"></div>
+			<div class="box" id="topology">
+				<p class="subtitle">Network Topology</p>
+			</div>
 		</div>
 	</body>
 </html>

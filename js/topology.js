@@ -2,7 +2,7 @@ import topo_data from "../topology.json" assert { type: "json" };
 
 // set the dimensions and margins of the graph
 const container_margin = 50;
-const margin = { top: 20, right: 20, bottom: 20, left: 80 },
+const margin = { top: 50, right: 0, bottom: 40, left: 50 },
 	width = d3.select("#topology").node().offsetWidth - container_margin,
 	height = d3.select("#topology").node().offsetHeight;
 
@@ -64,7 +64,7 @@ export function draw_topology(pckt_data) {
 				(width - margin.left - margin.right) / 2,
 				(height - margin.top - margin.bottom) / 2,
 			])
-			.scale(380)
+			.scale(300)
 			.center([-100, 60]);
 
 		const path = d3.geoPath().projection(projection);
