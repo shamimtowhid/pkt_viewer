@@ -58,13 +58,13 @@ th {
 }
 
 .province {
-	fill: #f0e4dd;
-	stroke: #000;
+	fill: #9c9b7a;
+	stroke: #fff;
 	stroke-width: 0.3;
 }
 
 .province:hover {
-	fill: #d9b38c;
+	fill: #a6a58a;
 }
 
 .subtitle {
