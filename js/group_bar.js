@@ -1,13 +1,13 @@
 // set the dimensions and margins of the graph
 const margin = {
 	top: 50,
-	right: 50,
-	bottom: 20,
-	left: 50,
+	right: 0,
+	bottom: 30,
+	left: 35,
 };
 const container_margin = 50; // pixel
 const svg_width = d3.select("#bar").node().offsetWidth - container_margin;
-const svg_height = d3.select("#bar").node().offsetHeight;
+const svg_height = d3.select("#bar").node().offsetHeight - 50;
 
 const average = (arr) => arr.reduce((p, c) => p + c, 0) / (arr.length || 1);
 
@@ -151,7 +151,7 @@ export function bar_plot(data, nodes) {
 		.range([svg_height - margin.bottom, margin.top]);
 	const yAxisGrid = d3
 		.axisLeft(y)
-		.tickSize(-(svg_width - margin.right - container_margin))
+		.tickSize(-(svg_width - margin.right))
 		.tickFormat("")
 		.ticks(5);
 
@@ -159,7 +159,7 @@ export function bar_plot(data, nodes) {
 	yAxis.call(
 		d3
 			.axisLeft(y)
-			.tickSize(-(svg_width - margin.right - container_margin))
+			.tickSize(-(svg_width - margin.right))
 			.ticks(5)
 	);
 	xAxis.call(d3.axisBottom(x).tickSize(0));

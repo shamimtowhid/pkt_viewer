@@ -2,7 +2,7 @@ import topo_data from "../topology.json" assert { type: "json" };
 import { bar_plot } from "./group_bar.js";
 import { update_link } from "./topology.js";
 
-const scatter_height = d3.select("#scatter").node().offsetHeight; //-
+const scatter_height = d3.select("#scatter").node().offsetHeight - 30; //-
 //d3.select("#label_h1").node().offsetHeight;
 const container_margin = 50;
 const scatter_width =
