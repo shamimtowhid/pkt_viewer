@@ -104,6 +104,8 @@ const xAxis = bar_svg
 // 	.text("Router Information")
 // 	.style("fill", "grey");
 
+const bar_color_list = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
+
 export function bar_plot(data, nodes) {
 	d3.selectAll(".bar_rect").remove();
 	d3.selectAll(".legend_element").remove();
@@ -169,8 +171,12 @@ export function bar_plot(data, nodes) {
 		.range([0, x.bandwidth()])
 		.padding([0.05]);
 
+	const bar_color =
+		subgroups.length <= 5
+			? bar_color_list.slice(0, subgroups.length)
+			: [bar_color_list[0]];
 	// color palette = one color per subgroup
-	var color = d3.scaleOrdinal().domain(subgroups).range(d3.schemeSet1);
+	const color = d3.scaleOrdinal().domain(subgroups).range(bar_color);
 
 	const min_bar_height = 3; // pixels
 	// Show the bars

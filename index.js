@@ -3,12 +3,21 @@ import { bar_plot } from "./js/group_bar.js";
 import { tabulate } from "./js/table.js";
 import { draw_topology, update_link } from "./js/topology.js";
 
+// const jsonUrl = [
+// 	"https://gist.githubusercontent.com/",
+// 	"shamimtowhid/",
+// 	"58112041b5fd9787fe9c71cebebd08a2/",
+// 	"raw/4673fda42780ae0a6c0319a068544a51db65260a/",
+// 	"network_data.json",
+// ].join("");
+
+// new data with 5 nodes
 const jsonUrl = [
 	"https://gist.githubusercontent.com/",
 	"shamimtowhid/",
-	"58112041b5fd9787fe9c71cebebd08a2/",
-	"raw/4673fda42780ae0a6c0319a068544a51db65260a/",
-	"network_data.json",
+	"5237c31a24d88db902521ac41dc0e69a/",
+	"raw/f9242c05b01360fe698a27ec117bbb9cc4aa291c/",
+	"new_network_data.json",
 ].join("");
 
 // downloading data and create plots
@@ -21,10 +30,7 @@ const main = async () => {
 		return +a.send_time - +b.send_time;
 	});
 
-	d3.select("#pckt_num").text(
-		"Total packets: " + parsedData.length.toString()
-	);
-
+	// console.log(parsedData.length);
 	// scatter plot
 	const [scatter_svg, circles, brushArea, color_scale] =
 		scatter_plot(parsedData);

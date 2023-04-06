@@ -41,7 +41,7 @@ const scatter_margin = {
 };
 const radius = 5;
 let ts1, ts2;
-const color_list = ["#1b9e77", "#d95f02", "#7570b3"];
+const color_list = ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e"];
 
 export function scatter_plot(parsedData) {
 	ts1 = parsedData[0].send_time;
@@ -86,7 +86,7 @@ export function scatter_plot(parsedData) {
 	}));
 
 	const color_values =
-		unique_dst_ip.size <= 3
+		unique_dst_ip.size <= 5
 			? color_list.slice(0, unique_dst_ip.size)
 			: [color_list[0]];
 
@@ -183,7 +183,7 @@ export function scatter_plot(parsedData) {
 	);
 
 	// add legends with checkbox
-	if (unique_dst_ip.size <= 3) {
+	if (unique_dst_ip.size <= 5) {
 		addLegend(scatter_svg, color_scale);
 	}
 

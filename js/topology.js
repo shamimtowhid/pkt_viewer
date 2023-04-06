@@ -47,12 +47,22 @@ const mouseleave = function (d) {
 	d3.select(this).style("stroke", "none");
 };
 
+const sw_color_list = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
+
 export function draw_topology(pckt_data) {
 	let sw_names = [];
-	for (let i = 0; i < topo_data.nodes; i++) {
+	for (let i = 0; i < topo_data.nodes.length; i++) {
 		sw_names.push(topo_data.nodes[i].name);
 	}
-	const color_scale = d3.scaleOrdinal().domain(sw_names).range(d3.schemeSet1);
+
+	const sw_color =
+		sw_names.length <= 5
+			? sw_color_list.slice(0, sw_names.length)
+			: [sw_color_list[0]];
+	// color palette = one color per subgroup
+	const color_scale = d3.scaleOrdinal().domain(sw_names).range(sw_color);
+	// console.log(sw_names, sw_color, topo_data.nodes);
+	// const color_scale = d3.scaleOrdinal().domain(sw_names).range(d3.schemeSet1);
 
 	var map = d3.json("../canada.geojson");
 
