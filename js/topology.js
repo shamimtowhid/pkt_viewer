@@ -44,10 +44,34 @@ const mousemove = function (event, d) {
 
 const mouseleave = function (d) {
 	tooltip.style("visibility", "hidden");
-	d3.select(this).style("stroke", "none");
+	// d3.select(this).style("stroke", "none");
 };
 
-const sw_color_list = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
+// const t1 = textures.lines().heavier().background("#faf9f6");
+const t1 = textures
+	.lines()
+	.orientation("vertical", "horizontal")
+	.size(6)
+	.strokeWidth(1)
+	.shapeRendering("crispEdges")
+	.background("#faf9f6");
+full_svg.call(t1);
+const t2 = textures.lines().orientation("3/8", "7/8").background("#faf9f6");
+full_svg.call(t2);
+const t3 = textures.lines().size(4).background("#faf9f6");
+full_svg.call(t3);
+const t4 = textures
+	.paths()
+	.d("woven")
+	.lighter()
+	.thicker()
+	.background("#faf9f6");
+full_svg.call(t4);
+const t5 = textures.circles().size(5).background("#faf9f6");
+full_svg.call(t5);
+const texture_list = [t1.url(), t2.url(), t3.url(), t4.url(), t5.url()];
+
+// const sw_color_list = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
 
 export function draw_topology(pckt_data) {
 	let sw_names = [];
@@ -55,15 +79,15 @@ export function draw_topology(pckt_data) {
 		sw_names.push(topo_data.nodes[i].name);
 	}
 
-	const sw_color =
+	const sw_texture =
 		sw_names.length <= 5
-			? sw_color_list.slice(0, sw_names.length)
-			: [sw_color_list[0]];
+			? texture_list.slice(0, sw_names.length)
+			: [texture_list[0]];
 	// color palette = one color per subgroup
-	const color_scale = d3
+	const texture_scale = d3
 		.scaleOrdinal()
 		.domain(sw_names.sort())
-		.range(sw_color);
+		.range(sw_texture);
 	// console.log(sw_names, sw_color, topo_data.nodes);
 	// const color_scale = d3.scaleOrdinal().domain(sw_names).range(d3.schemeSet1);
 
@@ -157,10 +181,10 @@ export function draw_topology(pckt_data) {
 			.attr("cy", function (d) {
 				return projection([d.longitude, d.lattitude])[1];
 			})
-			.attr("r", "8")
-
+			.attr("r", "10")
+			.attr("stroke", "black")
 			.style("fill", function (d, i) {
-				return color_scale(d.name);
+				return texture_scale(d.name);
 			})
 			.on("mouseover", mouseover)
 			.on("mousemove", mousemove)

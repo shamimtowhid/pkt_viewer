@@ -104,7 +104,30 @@ const xAxis = bar_svg
 // 	.text("Router Information")
 // 	.style("fill", "grey");
 
-const bar_color_list = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
+// const t1 = textures.lines().heavier().background("#faf9f6");
+const t1 = textures
+	.lines()
+	.orientation("vertical", "horizontal")
+	.size(6)
+	.strokeWidth(1)
+	.shapeRendering("crispEdges")
+	.background("#faf9f6");
+bar_svg.call(t1);
+const t2 = textures.lines().orientation("3/8", "7/8").background("#faf9f6");
+bar_svg.call(t2);
+const t3 = textures.lines().size(4).background("#faf9f6");
+bar_svg.call(t3);
+const t4 = textures
+	.paths()
+	.d("woven")
+	.lighter()
+	.thicker()
+	.background("#faf9f6");
+bar_svg.call(t4);
+const t5 = textures.circles().size(5).background("#faf9f6");
+bar_svg.call(t5);
+const bar_texture_list = [t1.url(), t2.url(), t3.url(), t4.url(), t5.url()];
+// const bar_color_list = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"];
 
 export function bar_plot(data, nodes) {
 	d3.selectAll(".bar_rect").remove();
@@ -169,14 +192,17 @@ export function bar_plot(data, nodes) {
 		.scaleBand()
 		.domain(subgroups)
 		.range([0, x.bandwidth()])
-		.padding([0.05]);
+		.padding([0.1]);
 
-	const bar_color =
+	const bar_texture =
 		subgroups.length <= 5
-			? bar_color_list.slice(0, subgroups.length)
-			: [bar_color_list[0]];
+			? bar_texture_list.slice(0, subgroups.length)
+			: [bar_texture_list[0]];
 	// color palette = one color per subgroup
-	const color = d3.scaleOrdinal().domain(subgroups.sort()).range(bar_color);
+	const texture_scale = d3
+		.scaleOrdinal()
+		.domain(subgroups.sort())
+		.range(bar_texture);
 
 	const min_bar_height = 3; // pixels
 	// Show the bars
@@ -213,9 +239,7 @@ export function bar_plot(data, nodes) {
 				// return - 5;
 				// }
 			})
-			.style("fill", function (d) {
-				return color(d.key);
-			})
+			.style("fill", "black")
 			.text(function (d) {
 				// console.log(d);
 				return d.key;
@@ -269,8 +293,9 @@ export function bar_plot(data, nodes) {
 				}
 			})
 			.attr("fill", function (d) {
-				return color(d.key);
-			});
+				return texture_scale(d.key);
+			})
+			.attr("stroke", "black");
 
 		// adding legends on top of the bar
 		u.join("text")
@@ -293,53 +318,53 @@ export function bar_plot(data, nodes) {
 					);
 				}
 			})
-			.style("fill", function (d) {
-				return color(d.key);
-			})
+			.style("fill", "black")
 			.text(function (d) {
 				// console.log(d);
 				return d.key;
 			})
 			.style("text-anchor", "middle");
 	}
-
-	// add_legends(subgroups, color);
-
+	if (subgroups.length <= 5) {
+		add_legends(subgroups, texture_scale);
+	}
 	return bar_svg;
 }
 
-// function add_legends(subgroups, color) {
-// const size = 20;
-// // Add one dot in the legend for each name.
-// full_svg
-// 	.selectAll("#legend")
-// 	.data(subgroups)
-// 	.enter()
-// 	.append("rect")
-// 	.attr("class", "legend_element")
-// 	.attr("x", function (d, i) {
-// 		return margin.left + i * 100;
-// 	})
-// 	.attr("y", 5)
-// 	.attr("width", size)
-// 	.attr("height", size)
-// 	.style("fill", function (d) {
-// 		return color(d);
-// 	});
+function add_legends(subgroups, texture_scale) {
+	const size = 20;
+	// Add one dot in the legend for each name.
+	full_svg
+		.selectAll("#legend")
+		.data(subgroups)
+		.enter()
+		.append("rect")
+		.attr("class", "legend_element")
+		.attr("x", function (d, i) {
+			return margin.left + i * 120;
+		})
+		.attr("y", 10)
+		.attr("width", size)
+		.attr("height", size)
+		.style("fill", function (d) {
+			return texture_scale(d);
+		});
 
-// Add one dot in the legend for each name.
-// full_svg
-// .selectAll("bar_labels")
-// .data(subgroups)
-// .enter()
-// 		.append("text")
-// 		.attr("id", "pckt_num")
-// 		.attr("x", margin.left)
-// 		.attr("y", 18)
-// 		.text(function (d) {
-// 			return d;
-// 		})
-// 		.attr("text-anchor", "right")
-// 		.attr("font-size", "20px");
-// 	// .style("alignment-baseline", "middle");
-// }
+	// Add one dot in the legend for each name.
+	full_svg
+		.selectAll("bar_labels")
+		.data(subgroups)
+		.enter()
+		.append("text")
+		.attr("class", "legend_element")
+		.attr("x", function (d, i) {
+			return margin.left + i * 120 + 25;
+		})
+		.attr("y", 30)
+		.text(function (d) {
+			return d;
+		})
+		// .attr("text-anchor", "right")
+		.attr("font-size", "20");
+	// .style("alignment-baseline", "middle");
+}
