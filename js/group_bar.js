@@ -61,7 +61,7 @@ const prepare_data = (data, nodes) => {
 		[extracted_depth, extracted_duration],
 		isNaN(d3.min(min_depth)) ? 0 : d3.min(min_depth),
 		isNaN(d3.max(max_depth)) ? 0 : d3.max(max_depth),
-		isNaN(d3.min(min_duration)) ? 0 : d3.min(min_duration) * 0.001,
+		isNaN(d3.min(min_duration)) ? 0 : d3.min(min_duration) * 0.001, // converting microsecond to milli second
 		isNaN(d3.max(max_duration)) ? 0 : d3.max(max_duration) * 0.001,
 		sw_names,
 	];
@@ -295,35 +295,36 @@ export function bar_plot(data, nodes) {
 			.attr("fill", function (d) {
 				return texture_scale(d.key);
 			})
-			.attr("stroke", "black");
+			.attr("stroke", "black")
+			.attr("stroke-width", 2);
 
 		// adding legends on top of the bar
-		u.join("text")
-			// .data(plot_data)
-			.attr("class", "legend_element")
-			.attr("x", function (d, i) {
-				return xSubgroup(d.key) + xSubgroup.bandwidth() / 2;
-			})
-			.attr("y", function (d) {
-				// console.log(d);
-				if (d.group === "Normalized queue depth") {
-					return Math.min(
-						depth_scale(d.value) - 5,
-						svg_height - margin.bottom - 5
-					);
-				} else {
-					return Math.min(
-						duration_scale(d.value) - 5,
-						svg_height - margin.bottom - 5
-					);
-				}
-			})
-			.style("fill", "black")
-			.text(function (d) {
-				// console.log(d);
-				return d.key;
-			})
-			.style("text-anchor", "middle");
+		// u.join("text")
+		// 	// .data(plot_data)
+		// 	.attr("class", "legend_element")
+		// 	.attr("x", function (d, i) {
+		// 		return xSubgroup(d.key) + xSubgroup.bandwidth() / 2;
+		// 	})
+		// 	.attr("y", function (d) {
+		// 		// console.log(d);
+		// 		if (d.group === "Normalized queue depth") {
+		// 			return Math.min(
+		// 				depth_scale(d.value) - 5,
+		// 				svg_height - margin.bottom - 5
+		// 			);
+		// 		} else {
+		// 			return Math.min(
+		// 				duration_scale(d.value) - 5,
+		// 				svg_height - margin.bottom - 5
+		// 			);
+		// 		}
+		// 	})
+		// 	.style("fill", "black")
+		// 	.text(function (d) {
+		// 		// console.log(d);
+		// 		return d.key;
+		// 	})
+		// 	.style("text-anchor", "middle");
 	}
 	if (subgroups.length <= 5) {
 		add_legends(subgroups, texture_scale);
@@ -348,7 +349,9 @@ function add_legends(subgroups, texture_scale) {
 		.attr("height", size)
 		.style("fill", function (d) {
 			return texture_scale(d);
-		});
+		})
+		.style("stroke", "black")
+		.style("stroke-width", 2);
 
 	// Add one dot in the legend for each name.
 	full_svg
