@@ -1,0 +1,76 @@
+{
+	"nodes": [
+		{
+			"id": 0,
+			"name": "Switch1",
+			"longitude": -120.87348460442935,
+			"lattitude": 63.674601019268444
+		},
+		{
+			"id": 1,
+			"name": "Switch2",
+			"longitude": -97.02984282821855,
+			"lattitude": 56.223051552887206
+		},
+		{
+			"id": 2,
+			"name": "Switch3",
+			"longitude": -73.31193241530293,
+			"lattitude": 56.64362296665752
+		},
+		{
+			"id": 3,
+			"name": "Switch4",
+			"longitude": -137.11334195777624,
+			"lattitude": 63.32553811711318
+		},
+		{
+			"id": 4,
+			"name": "Switch5",
+			"longitude": -114.46180582787709,
+			"lattitude": 53.72594513367163
+		}
+	],
+	"links": [
+		{
+			"source": 0,
+			"target": 2,
+			"src_longitude": -120.87348460442935,
+			"src_lattitude": 63.674601019268444,
+			"target_longitude": -73.31193241530293,
+			"target_lattitude": 56.64362296665752
+		},
+		{
+			"source": 1,
+			"target": 2,
+			"src_longitude": -97.02984282821855,
+			"src_lattitude": 56.223051552887206,
+			"target_longitude": -73.31193241530293,
+			"target_lattitude": 56.64362296665752
+		},
+		{
+			"source": 0,
+			"target": 3,
+			"src_longitude": -120.87348460442935,
+			"src_lattitude": 63.674601019268444,
+			"target_longitude": -137.11334195777624,
+			"target_lattitude": 63.32553811711318
+		},
+		{
+			"source": 3,
+			"target": 1,
+			"src_longitude": -137.11334195777624,
+			"src_lattitude": 63.32553811711318,
+			"target_longitude": -97.02984282821855,
+			"target_lattitude": 56.223051552887206
+		},
+		{
+			"source": 1,
+			"target": 4,
+			"src_longitude": -97.02984282821855,
+			"src_lattitude": 56.223051552887206,
+			"target_longitude": -114.46180582787709,
+			"target_lattitude": 53.72594513367163
+		}
+	]
+}

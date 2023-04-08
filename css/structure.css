@@ -1,0 +1,78 @@
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	overflow: hidden;
+	font-family: "Arial";
+	font-size: 14px;
+	background-color: #faf9f6;
+}
+
+#container {
+	display: grid;
+	grid-template-rows: 1fr 1fr;
+	grid-template-columns: 1fr 1fr;
+	grid-gap: 10px;
+	margin: 0px 50px;
+	height: 95%;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	/* background-color: faf9f6; */
+}
+
+.box {
+	background-color: #faf9f6;
+	padding: 0px;
+}
+
+#heading {
+	/* background-color: #5962ee; */
+	height: 65px;
+	border-bottom: 1px solid #ddd;
+	margin: 0px 50px;
+}
+
+#appname {
+	font-size: xx-large;
+	color: #909090;
+	text-align: center;
+	margin: 0;
+	/* font-weight: bold; */
+}
+
+#timeline {
+	font-size: 20px;
+	color: #000;
+	margin-top: 0px;
+	text-align: center;
+}
+
+@media screen and (max-width: 1600px) {
+	#container {
+		grid-template-columns: 1fr;
+		overflow: auto;
+	}
+	.box {
+		padding: 50px;
+		min-height: 400px;
+		/* min-width: 600px; */
+	}
+}
+
+/* Hide the scrollbar */
+#container::-webkit-scrollbar {
+	width: 0.5em;
+}
+
+#container::-webkit-scrollbar-thumb {
+	background-color: #faf9f6;
+}
+
+#table::-webkit-scrollbar {
+	width: 0.5em;
+}
+
+#table::-webkit-scrollbar-thumb {
+	background-color: #faf9f6;
+}
