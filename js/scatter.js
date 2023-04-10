@@ -492,8 +492,8 @@ function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 	update_link(visible_circle);
 
 	// add human readbale date and time
-	const time1 = visible_circle[0].send_time;
-	const time2 = visible_circle[visible_circle.length - 1].send_time;
+	// const time1 = visible_circle[0].send_time;
+	// const time2 = visible_circle[visible_circle.length - 1].send_time;
 
 	// const date_text =
 	// 	"From <strong>" +
