@@ -15,35 +15,12 @@ const svg_height =
 		? d3.select("#bar").node().offsetHeight - 50
 		: 400;
 
-// const average = (arr) => arr.reduce((p, c) => p + c, 0) / (arr.length || 1);
-
 function avg_std(arr) {
-	// console.log(arr);
-	// Creating the mean with Array.reduce
-	// let mean =
-	// 	arr.reduce((acc, curr) => {
-	// 		return acc + curr;
-	// 	}, 0) / (arr.length || 1);
-	// console.log(mean);
-	// // Assigning (value - mean) ^ 2 to every array item
-	// arr = arr.map((k) => {
-	// 	return (k - mean) ** 2;
-	// });
-
-	// // Calculating the sum of updated array
-	// let sum = arr.reduce((acc, curr) => acc + curr, 0);
-
-	// // Calculating the variance
-	// let variance = sum / arr.length;
-
-	// // Returning the standard deviation
-	// return [mean, Math.sqrt(variance)];
 	return [
 		isNaN(d3.mean(arr)) ? 0 : d3.mean(arr),
 		isNaN(d3.deviation(arr)) ? 0 : d3.deviation(arr),
 	];
 }
-// console.log(avg_std([1, 2, 3, 4]));
 // preparing qdepth and duration data
 const prepare_data = (data, nodes) => {
 	let extracted_depth = {
@@ -77,10 +54,6 @@ const prepare_data = (data, nodes) => {
 	let max_depth = [];
 	let min_duration = [];
 	let max_duration = [];
-	// let min_depth_std = [];
-	// let max_depth_std = [];
-	// let min_duration_std = [];
-	// let max_duration_std = [];
 	for (let i = 0; i < nodes.length; i++) {
 		const [avg_depth, std_depth] = avg_std(extracted_depth[nodes[i].name]);
 		const [avg_duration, std_duration] = avg_std(
@@ -146,18 +119,6 @@ const xAxis = bar_svg
 	.attr("class", "bar_g")
 	.attr("transform", "translate(0," + (svg_height - margin.bottom) + ")");
 
-// Add x-axis label
-// full_svg
-// 	.append("text")
-// 	.attr("text-anchor", "middle")
-// 	.attr("font-size", "20px")
-// 	// .attr("style", "font-weight: bold")
-// 	.attr("x", (svg_width + margin.left + margin.right) / 2)
-// 	.attr("y", svg_height + margin.top + margin.bottom - 15)
-// 	.text("Router Information")
-// 	.style("fill", "grey");
-
-// const t1 = textures.lines().heavier().background("#faf9f6");
 const t1 = textures
 	.lines()
 	.orientation("vertical", "horizontal")
@@ -295,32 +256,13 @@ export function bar_plot(data, nodes) {
 				return "0.0";
 			})
 			.style("text-anchor", "middle");
-
-		// u.join("rect")
-		// 	//.append("rect")
-		// 	.attr("class", "bar_rect")
-		// 	//.merge(u)
-		// 	.attr("x", function (d) {
-		// 		return xSubgroup(d.key);
-		// 	})
-		// 	.attr("y", svg_height - margin.bottom - min_bar_height)
-		// 	.attr("width", xSubgroup.bandwidth())
-		// 	//.transition()
-		// 	//.duration(500)
-		// 	.attr("height", min_bar_height)
-		// 	.attr("fill", function (d) {
-		// 		return color(d.key);
-		// 	});
 	} else {
 		u.join("rect")
-			//.append("rect")
 			.attr("class", "bar_rect")
-			//.merge(u)
 			.attr("x", function (d) {
 				return xSubgroup(d.key);
 			})
 			.attr("y", function (d, i) {
-				// console.log(d, i);
 				if (d.group === "Normalized queue depth") {
 					return depth_scale(d.value);
 				} else {
@@ -328,8 +270,6 @@ export function bar_plot(data, nodes) {
 				}
 			})
 			.attr("width", xSubgroup.bandwidth())
-			//.transition()
-			//.duration(500)
 			.attr("height", function (d) {
 				if (d.group === "Normalized queue depth") {
 					const ret_val =
@@ -341,18 +281,6 @@ export function bar_plot(data, nodes) {
 										margin.bottom -
 										depth_scale(d.value)
 							  );
-					// if (ret_val == 0) {
-					// 	u.join("text")
-					// 		.attr("class", "legend_element")
-					// 		.attr(
-					// 			"x",
-					// 			xSubgroup(d.key) + xSubgroup.bandwidth() / 2
-					// 		)
-					// 		.attr("y", svg_height - margin.bottom - 5)
-					// 		.style("fill", "black")
-					// 		.text("0.0")
-					// 		.style("text-anchor", "middle");
-					// }
 					return ret_val;
 				} else {
 					const ret_val =
@@ -365,25 +293,12 @@ export function bar_plot(data, nodes) {
 										duration_scale(d.value)
 							  );
 
-					// if (ret_val == 0) {
-					// 	u.join("text")
-					// 		.attr("class", "legend_element")
-					// 		.attr(
-					// 			"x",
-					// 			xSubgroup(d.key) + xSubgroup.bandwidth() / 2
-					// 		)
-					// 		.attr("y", svg_height - margin.bottom - 5)
-					// 		.style("fill", "black")
-					// 		.text("0.0")
-					// 		.style("text-anchor", "middle");
-					// }
 					return ret_val;
 				}
 			})
 			.attr("fill", function (d) {
 				return texture_scale(d.key);
 			})
-			// .attr("opacity", 0.8)
 			.attr("stroke", "black")
 			.attr("stroke-width", 2);
 
@@ -397,7 +312,6 @@ export function bar_plot(data, nodes) {
 			})
 			.attr("y1", function (d) {
 				if (d.group == "Normalized queue depth") {
-					// console.log(depth_scale(d.value), depth_scale(d.std));
 					return depth_scale(d.value - d.std);
 				} else {
 					return duration_scale(d.value - d.std);
@@ -405,7 +319,6 @@ export function bar_plot(data, nodes) {
 			})
 			.attr("y2", function (d) {
 				if (d.group == "Normalized queue depth") {
-					// console.log("Depth", depth_scale(d.std));
 					return depth_scale(d.value + d.std);
 				} else {
 					return duration_scale(d.value + d.std);
@@ -483,7 +396,5 @@ function add_legends(subgroups, texture_scale) {
 		.text(function (d) {
 			return d;
 		})
-		// .attr("text-anchor", "right")
 		.attr("font-size", "20");
-	// .style("alignment-baseline", "middle");
 }

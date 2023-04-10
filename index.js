@@ -30,7 +30,6 @@ const main = async () => {
 		return +a.send_time - +b.send_time;
 	});
 
-	// console.log(parsedData.length);
 	// scatter plot
 	const [scatter_svg, circles, brushArea, color_scale] =
 		scatter_plot(parsedData);
@@ -154,50 +153,3 @@ const main = async () => {
 };
 
 main();
-
-// adding tooltop
-//circles.append("title").text((d) => `${d.label}`);
-
-// Save the current position of the circles in the stacking order
-//const initialOrder = circles.order();
-
-// chaning the z axis of a circle on hover
-// svg.selectAll(".dot")
-// 	.on("mouseover", function () {
-// 		d3.select(this)
-// 			.attr("r", radius * 1.2)
-// 			.style("stroke-width", 2);
-// 		d3.select(this).raise();
-// 		//this.parentNode.appendChild(this);
-// 	})
-// 	.on("mouseout", function () {
-// 		d3.select(this).attr("r", radius).style("stroke-width", 0.5);
-// 		circles.order(initialOrder);
-// 	});
-
-// code for moving circles, (sin wave)
-
-//let t = 0;
-
-//setInterval(() => {
-//    const n = 10 + Math.sin(t) * 5;
-//    const data = d3.range(n).map(d => ({
-//        x: d * 60 + 50,
-//        y: 250 + Math.sin(d * 0.5 + t) * 220
-//    }));
-
-// join is the merge of enter and update selection
-// join also call the exit selection that removes the
-// elements from DOM for which no data is associated
-
-//    const circles = svg
-//        .selectAll("circle")
-//        .data(data)
-//        .join("circle")
-//        .attr("r", 20)
-//        .attr("cx", (d) => d.x)
-//        .attr("cy", (d) => d.y);
-
-//    t = t + 0.1;
-
-//}, 1000 / 60);
