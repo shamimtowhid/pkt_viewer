@@ -2,7 +2,7 @@
 const margin = {
 	top: 50,
 	right: 0,
-	bottom: 30,
+	bottom: 50,
 	left: 35,
 };
 const container_margin = 50; // pixel
@@ -368,14 +368,13 @@ function add_legends(subgroups, texture_scale) {
 		.selectAll("#legend")
 		.data(subgroups)
 		.enter()
-		.append("rect")
+		.append("circle")
 		.attr("class", "legend_element")
-		.attr("x", function (d, i) {
+		.attr("cx", function (d, i) {
 			return margin.left + i * 120;
 		})
-		.attr("y", 10)
-		.attr("width", size)
-		.attr("height", size)
+		.attr("cy", 20)
+		.attr("r", 10)
 		.style("fill", function (d) {
 			return texture_scale(d);
 		})
@@ -390,7 +389,7 @@ function add_legends(subgroups, texture_scale) {
 		.append("text")
 		.attr("class", "legend_element")
 		.attr("x", function (d, i) {
-			return margin.left + i * 120 + 25;
+			return margin.left + i * 120 + 15;
 		})
 		.attr("y", 30)
 		.text(function (d) {
