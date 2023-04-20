@@ -3,7 +3,6 @@ import { bar_plot } from "./group_bar.js";
 import { update_link } from "./topology.js";
 
 const scatter_height = d3.select("#scatter").node().offsetHeight - 30; //-
-//d3.select("#label_h1").node().offsetHeight;
 const container_margin = 50;
 const scatter_width =
 	d3.select("#scatter").node().offsetWidth - container_margin;
@@ -12,7 +11,6 @@ const unique_dst_ip = new Set();
 
 // preparing X data
 const xValue = (d) => {
-	// const ts1 = 1675921681.915128;
 	unique_dst_ip.add(d.dst_ip);
 
 	return d.send_time - ts1; // return difference between two timestamp in seconds
@@ -41,8 +39,6 @@ const scatter_margin = {
 };
 const radius = 5;
 let ts1, ts2;
-// const color_list = ["#1b9e77", "#d95f02", "#7570b3", "#e7298a", "#66a61e"];
-// const color_list = ["#7fc97f", "#beaed4", "#fdc086", "#ffff99", "#386cb0"];
 const color_list = ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854"];
 
 export function scatter_plot(parsedData) {
@@ -74,7 +70,6 @@ export function scatter_plot(parsedData) {
 	const marks = parsedData.map((d) => ({
 		x: x(xValue(d)),
 		y: y(yValue(d)),
-		// color: color_scale(dstIP(d)),
 		destination_ip: dstIP(d),
 		source_ip: srcIP(d),
 		size_in_bytes: pktSize(d),
@@ -82,9 +77,6 @@ export function scatter_plot(parsedData) {
 		raw_x: xValue(d),
 		raw_y: yValue(d),
 		send_time: sendTime(d),
-		//label: `Source IP: ${srcIP(d)}\nDestination IP: ${dstIP(
-		//	d
-		//)}\nSize: ${pktSize(d)} bytes`,
 	}));
 
 	const color_values =
@@ -234,7 +226,6 @@ function addLegend(scatter_svg, color_scale) {
 }
 
 function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
-	// x.clamp(true);
 	const xMin = x.range()[0];
 	const xMax = x.range()[1];
 
@@ -285,11 +276,6 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 		const x2 = x(sliderVals[d == 0 ? 1 : 0]);
 		selRange.attr("x1", 10 + x1).attr("x2", 10 + x2);
 
-		// add tooltip to the handler
-		// console.log(
-		// 	Math.round(x.invert(x1 + 10)),
-		// 	Math.round(x.invert(x2 + 10))
-		// );
 		d3.selectAll(".handle_tip").remove();
 
 		slider
@@ -301,27 +287,6 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 			.style("fill", "#000")
 			.style("text-anchor", "middle");
 
-		// svg.append("line")
-		// 	.attr("class", "handle_tip")
-		// 	// .text(Math.round(x.invert(x1)))
-		// 	.attr("x1", x1)
-		// 	.attr("y1", scatter_height - 55)
-		// 	.attr("x2", x1)
-		// 	.attr("y2", scatter_height - scatter_margin.bottom)
-		// 	.style("stroke", "#000")
-		// 	.style("stroke-width", 1);
-		// // .style("text-anchor", "middle");
-
-		// svg.append("line")
-		// 	.attr("class", "handle_tip")
-		// 	// .text(Math.round(x.invert(x1)))
-		// 	.attr("x1", x2)
-		// 	.attr("y1", scatter_height - 55)
-		// 	.attr("x2", x2)
-		// 	.attr("y2", scatter_height - scatter_margin.bottom)
-		// 	.style("stroke", "#000")
-		// 	.style("stroke-width", 1);
-
 		slider
 			.append("text")
 			.attr("class", "handle_tip")
@@ -330,7 +295,9 @@ function add_slider_x(sliderVals, svg, x, xAxis, circles, color_scale, area) {
 			.attr("y", 25)
 			.style("fill", "#000")
 			.style("text-anchor", "middle");
-		// for real time updating the plot
+
+		// for real time updating the plot (The brushing is not so smooth in this case, commenting out)
+
 		// let v = x.invert(event.x);
 		// const elem = d3.select(this);
 		// let past_position = sliderVals[d];
@@ -480,7 +447,6 @@ function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 					visible_circle.push(d3.select(this).data()[0]);
 				}
 			}
-			// console.log(d3.select(this).data()[0].x);
 			return d3.select(this);
 		})
 		.transition()
@@ -490,23 +456,9 @@ function updatePlot(slider_range, xAxis, circles, color_scale, area) {
 		});
 	bar_plot(visible_circle, topo_data.nodes);
 	update_link(visible_circle);
-
-	// add human readbale date and time
-	const time1 = visible_circle[0].send_time;
-	const time2 = visible_circle[visible_circle.length - 1].send_time;
-
-	// const date_text =
-	// 	"From <strong>" +
-	// 	new Date(time1 * 1000).toLocaleString() +
-	// 	"</strong> to <strong>" +
-	// 	new Date(time2 * 1000).toLocaleString() +
-	// 	"</strong>";
-
-	// d3.select("#timeline").html(date_text);
 }
 
 function add_slider_y(sliderVals, svg, y, yAxis, circles, color_scale, area) {
-	// y.clamp(true);
 	const yMin = y.range()[0];
 	const yMax = y.range()[1];
 
@@ -559,11 +511,6 @@ function add_slider_y(sliderVals, svg, y, yAxis, circles, color_scale, area) {
 		const y2 = y(sliderVals[d == 0 ? 1 : 0]);
 		selRange.attr("y1", 8 + y1).attr("y2", 8 + y2);
 
-		// add tooltip to the handler
-		// console.log(
-		// 	Math.round(x.invert(x1 + 10)),
-		// 	Math.round(x.invert(x2 + 10))
-		// );
 		d3.selectAll(".handle_tip").remove();
 
 		slider
@@ -575,27 +522,6 @@ function add_slider_y(sliderVals, svg, y, yAxis, circles, color_scale, area) {
 			.style("fill", "#000")
 			.style("text-anchor", "middle");
 
-		// svg.append("line")
-		// 	.attr("class", "handle_tip")
-		// 	// .text(Math.round(x.invert(x1)))
-		// 	.attr("x1", x1)
-		// 	.attr("y1", scatter_height - 55)
-		// 	.attr("x2", x1)
-		// 	.attr("y2", scatter_height - scatter_margin.bottom)
-		// 	.style("stroke", "#000")
-		// 	.style("stroke-width", 1);
-		// // .style("text-anchor", "middle");
-
-		// svg.append("line")
-		// 	.attr("class", "handle_tip")
-		// 	// .text(Math.round(x.invert(x1)))
-		// 	.attr("x1", x2)
-		// 	.attr("y1", scatter_height - 55)
-		// 	.attr("x2", x2)
-		// 	.attr("y2", scatter_height - scatter_margin.bottom)
-		// 	.style("stroke", "#000")
-		// 	.style("stroke-width", 1);
-
 		slider
 			.append("text")
 			.attr("class", "handle_tip")
@@ -604,38 +530,6 @@ function add_slider_y(sliderVals, svg, y, yAxis, circles, color_scale, area) {
 			.attr("y", 13 + y2)
 			.style("fill", "#000")
 			.style("text-anchor", "middle");
-		// for real time updating the plot
-		// let v = x.invert(event.x);
-		// const elem = d3.select(this);
-		// let past_position = sliderVals[d];
-		// sliderVals[d] = v;
-		// let v1 = Math.round(Math.min(sliderVals[0], sliderVals[1])),
-		// 	v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
-
-		// if (x(v2 - v1) < x(min_distance)) {
-		// 	if (past_position > v) {
-		// 		v = Math.min(
-		// 			x.domain()[1],
-		// 			sliderVals[d == 0 ? 1 : 0] + x(min_distance)
-		// 		);
-		// 	} else {
-		// 		v = Math.max(
-		// 			x.domain()[0],
-		// 			sliderVals[d == 0 ? 1 : 0] - x(min_distance)
-		// 		);
-		// 	}
-		// }
-
-		// sliderVals[d] = v;
-		// v1 = Math.round(Math.min(sliderVals[0], sliderVals[1]));
-		// v2 = Math.round(Math.max(sliderVals[0], sliderVals[1]));
-
-		// elem.classed("active", false).attr("x", x(v));
-		// selRange.attr("x1", 10 + x(v1)).attr("x2", 10 + x(v2));
-		// // console.log(selRange.attr("x1"));
-		// // console.log(selRange.attr("x2"));
-		// // console.log(v1, v2);
-		// updatePlot(svg, [v1, v2], x, xAxis, circles, color_scale, area);
 	}
 
 	const min_distance = 8; // avg. qdepth

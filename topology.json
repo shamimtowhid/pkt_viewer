@@ -3,74 +3,74 @@
 		{
 			"id": 0,
 			"name": "Switch1",
-			"longitude": -120.87348460442935,
-			"lattitude": 63.674601019268444
+			"longitude": -97.13636686980813,
+			"lattitude": 49.89617758326612
 		},
 		{
 			"id": 1,
 			"name": "Switch2",
-			"longitude": -97.02984282821855,
-			"lattitude": 56.223051552887206
+			"longitude": -113.52571993243377,
+			"lattitude": 53.5467571361412
 		},
 		{
 			"id": 2,
 			"name": "Switch3",
-			"longitude": -73.31193241530293,
-			"lattitude": 56.64362296665752
+			"longitude": -114.08578143187323,
+			"lattitude": 51.04524259675869
 		},
 		{
 			"id": 3,
 			"name": "Switch4",
-			"longitude": -137.11334195777624,
-			"lattitude": 63.32553811711318
+			"longitude": -104.61824458422575,
+			"lattitude": 50.44458258393365
 		},
 		{
 			"id": 4,
 			"name": "Switch5",
-			"longitude": -114.46180582787709,
-			"lattitude": 53.72594513367163
+			"longitude": -135.05650373715116,
+			"lattitude": 60.72653891778863
 		}
 	],
 	"links": [
 		{
 			"source": 0,
 			"target": 2,
-			"src_longitude": -120.87348460442935,
-			"src_lattitude": 63.674601019268444,
-			"target_longitude": -73.31193241530293,
-			"target_lattitude": 56.64362296665752
+			"src_longitude": -97.13636686980813,
+			"src_lattitude": 49.89617758326612,
+			"target_longitude": -114.08578143187323,
+			"target_lattitude": 51.04524259675869
 		},
 		{
 			"source": 1,
 			"target": 2,
-			"src_longitude": -97.02984282821855,
-			"src_lattitude": 56.223051552887206,
-			"target_longitude": -73.31193241530293,
-			"target_lattitude": 56.64362296665752
+			"src_longitude": -113.52571993243377,
+			"src_lattitude": 53.5467571361412,
+			"target_longitude": -114.08578143187323,
+			"target_lattitude": 51.04524259675869
 		},
 		{
 			"source": 0,
 			"target": 3,
-			"src_longitude": -120.87348460442935,
-			"src_lattitude": 63.674601019268444,
-			"target_longitude": -137.11334195777624,
-			"target_lattitude": 63.32553811711318
+			"src_longitude": -97.13636686980813,
+			"src_lattitude": 49.89617758326612,
+			"target_longitude": -104.61824458422575,
+			"target_lattitude": 50.44458258393365
 		},
 		{
 			"source": 3,
 			"target": 1,
-			"src_longitude": -137.11334195777624,
-			"src_lattitude": 63.32553811711318,
-			"target_longitude": -97.02984282821855,
-			"target_lattitude": 56.223051552887206
+			"src_longitude": -104.61824458422575,
+			"src_lattitude": 50.44458258393365,
+			"target_longitude": -113.52571993243377,
+			"target_lattitude": 53.5467571361412
 		},
 		{
 			"source": 1,
 			"target": 4,
-			"src_longitude": -97.02984282821855,
-			"src_lattitude": 56.223051552887206,
-			"target_longitude": -114.46180582787709,
-			"target_lattitude": 53.72594513367163
+			"src_longitude": -113.52571993243377,
+			"src_lattitude": 53.5467571361412,
+			"target_longitude": -135.05650373715116,
+			"target_lattitude": 60.72653891778863
 		}
 	]
 }

@@ -2,19 +2,33 @@
 const margin = {
 	top: 50,
 	right: 0,
-	bottom: 30,
+	bottom: 50,
 	left: 35,
 };
 const container_margin = 50; // pixel
-const svg_width = d3.select("#bar").node().offsetWidth - container_margin;
-const svg_height = d3.select("#bar").node().offsetHeight - 50;
+const svg_width =
+	d3.select("#bar").node().offsetWidth - container_margin > 0
+		? d3.select("#bar").node().offsetWidth - container_margin
+		: 400;
+const svg_height =
+	d3.select("#bar").node().offsetHeight - 50 > 0
+		? d3.select("#bar").node().offsetHeight - 50
+		: 400;
 
-const average = (arr) => arr.reduce((p, c) => p + c, 0) / (arr.length || 1);
-
+function avg_std(arr) {
+	return [
+		isNaN(d3.mean(arr)) ? 0 : d3.mean(arr),
+		isNaN(d3.deviation(arr)) ? 0 : d3.deviation(arr),
+	];
+}
 // preparing qdepth and duration data
 const prepare_data = (data, nodes) => {
-	let extracted_depth = { group: "Normalized queue depth" };
-	let extracted_duration = { group: "Normalized packet duration" };
+	let extracted_depth = {
+		group: "Normalized queue depth",
+	};
+	let extracted_duration = {
+		group: "Normalized packet duration",
+	};
 	let sw_names = [];
 	for (let i = 0; i < nodes.length; i++) {
 		extracted_depth[nodes[i].name] = [];
@@ -33,7 +47,7 @@ const prepare_data = (data, nodes) => {
 			].push(tmp_data.swtraces[j].qdepth);
 			extracted_duration[
 				"Switch" + (tmp_data.swtraces[j].sw_id + 1).toString()
-			].push(tmp_data.swtraces[j].duration);
+			].push(tmp_data.swtraces[j].duration * 0.001); // converting microsecond to milli seconds
 		}
 	}
 	let min_depth = [];
@@ -41,28 +55,40 @@ const prepare_data = (data, nodes) => {
 	let min_duration = [];
 	let max_duration = [];
 	for (let i = 0; i < nodes.length; i++) {
-		const avg_depth = average(extracted_depth[nodes[i].name]);
+		const [avg_depth, std_depth] = avg_std(extracted_depth[nodes[i].name]);
+		const [avg_duration, std_duration] = avg_std(
+			extracted_duration[nodes[i].name]
+		);
 
-		const avg_duration = average(extracted_duration[nodes[i].name]) * 0.001;
+		min_depth.push(d3.min(extracted_depth[nodes[i].name]) - std_depth);
+		max_depth.push(d3.max(extracted_depth[nodes[i].name]) + std_depth);
 
-		min_depth.push(d3.min(extracted_depth[nodes[i].name]));
-		max_depth.push(d3.max(extracted_depth[nodes[i].name]));
-
-		min_duration.push(d3.min(extracted_duration[nodes[i].name]));
-		max_duration.push(d3.max(extracted_duration[nodes[i].name]));
+		min_duration.push(
+			d3.min(extracted_duration[nodes[i].name]) - std_duration
+		);
+		max_duration.push(
+			d3.max(extracted_duration[nodes[i].name]) + std_duration
+		);
 
 		extracted_depth[nodes[i].name] = isNaN(avg_depth) ? 0 : avg_depth;
 		extracted_duration[nodes[i].name] = isNaN(avg_duration)
 			? 0
 			: avg_duration;
+
+		extracted_depth[nodes[i].name + "_std"] = isNaN(std_depth)
+			? 0
+			: std_depth;
+		extracted_duration[nodes[i].name + "_std"] = isNaN(std_duration)
+			? 0
+			: std_duration;
 	}
 
 	return [
 		[extracted_depth, extracted_duration],
 		isNaN(d3.min(min_depth)) ? 0 : d3.min(min_depth),
 		isNaN(d3.max(max_depth)) ? 0 : d3.max(max_depth),
-		isNaN(d3.min(min_duration)) ? 0 : d3.min(min_duration) * 0.001, // converting microsecond to milli second
-		isNaN(d3.max(max_duration)) ? 0 : d3.max(max_duration) * 0.001,
+		isNaN(d3.min(min_duration)) ? 0 : d3.min(min_duration),
+		isNaN(d3.max(max_duration)) ? 0 : d3.max(max_duration),
 		sw_names,
 	];
 };
@@ -93,18 +119,6 @@ const xAxis = bar_svg
 	.attr("class", "bar_g")
 	.attr("transform", "translate(0," + (svg_height - margin.bottom) + ")");
 
-// Add x-axis label
-// full_svg
-// 	.append("text")
-// 	.attr("text-anchor", "middle")
-// 	.attr("font-size", "20px")
-// 	// .attr("style", "font-weight: bold")
-// 	.attr("x", (svg_width + margin.left + margin.right) / 2)
-// 	.attr("y", svg_height + margin.top + margin.bottom - 15)
-// 	.text("Router Information")
-// 	.style("fill", "grey");
-
-// const t1 = textures.lines().heavier().background("#faf9f6");
 const t1 = textures
 	.lines()
 	.orientation("vertical", "horizontal")
@@ -142,13 +156,6 @@ export function bar_plot(data, nodes) {
 		subgroups,
 	] = prepare_data(data, nodes);
 
-	// console.log(plot_data);
-	// console.log(min_depth);
-	// console.log(max_depth);
-	// console.log(min_duration);
-	// console.log(max_duration);
-	// console.log(subgroups);
-
 	const groups = ["Normalized queue depth", "Normalized packet duration"];
 
 	var x = d3
@@ -158,6 +165,7 @@ export function bar_plot(data, nodes) {
 		.padding([0.2]);
 
 	// Add Y axis
+	// console.log(plot_data);
 	const depth_scale = d3
 		.scaleLinear()
 		.domain([min_depth, max_depth])
@@ -204,7 +212,7 @@ export function bar_plot(data, nodes) {
 		.domain(subgroups.sort())
 		.range(bar_texture);
 
-	const min_bar_height = 3; // pixels
+	// const min_bar_height = 3; // pixels
 	// Show the bars
 	const u = bar_svg
 		.append("g")
@@ -220,56 +228,41 @@ export function bar_plot(data, nodes) {
 		.selectAll("rect")
 		.data(function (d) {
 			return subgroups.map(function (key) {
-				return { key: key, value: d[key], group: d["group"] };
+				return {
+					key: key,
+					value: d[key],
+					group: d["group"],
+					std: d[key + "_std"],
+				};
 			});
 		});
 
-	if (min_depth == 0 && max_depth == 0) {
+	if (
+		min_depth == 0 &&
+		max_depth == 0 &&
+		min_duration == 0 &&
+		max_duration == 0
+	) {
 		u.join("text")
-			// .data(plot_data)
 			.attr("class", "legend_element")
 			.attr("x", function (d, i) {
 				return xSubgroup(d.key) + xSubgroup.bandwidth() / 2;
 			})
 			.attr("y", function (d) {
-				// console.log(d);
-				// if (d.group === "Normalized queue depth") {
 				return svg_height - margin.bottom - 5;
-				// } else {
-				// return - 5;
-				// }
 			})
 			.style("fill", "black")
 			.text(function (d) {
-				// console.log(d);
-				return d.key;
+				return "0.0";
 			})
 			.style("text-anchor", "middle");
-
-		// u.join("rect")
-		// 	//.append("rect")
-		// 	.attr("class", "bar_rect")
-		// 	//.merge(u)
-		// 	.attr("x", function (d) {
-		// 		return xSubgroup(d.key);
-		// 	})
-		// 	.attr("y", svg_height - margin.bottom - min_bar_height)
-		// 	.attr("width", xSubgroup.bandwidth())
-		// 	//.transition()
-		// 	//.duration(500)
-		// 	.attr("height", min_bar_height)
-		// 	.attr("fill", function (d) {
-		// 		return color(d.key);
-		// 	});
 	} else {
 		u.join("rect")
-			//.append("rect")
 			.attr("class", "bar_rect")
-			//.merge(u)
 			.attr("x", function (d) {
 				return xSubgroup(d.key);
 			})
-			.attr("y", function (d) {
+			.attr("y", function (d, i) {
 				if (d.group === "Normalized queue depth") {
 					return depth_scale(d.value);
 				} else {
@@ -277,19 +270,30 @@ export function bar_plot(data, nodes) {
 				}
 			})
 			.attr("width", xSubgroup.bandwidth())
-			//.transition()
-			//.duration(500)
 			.attr("height", function (d) {
 				if (d.group === "Normalized queue depth") {
-					return Math.max(
-						0,
-						svg_height - margin.bottom - depth_scale(d.value)
-					);
+					const ret_val =
+						d.value == 0
+							? 0
+							: Math.max(
+									0,
+									svg_height -
+										margin.bottom -
+										depth_scale(d.value)
+							  );
+					return ret_val;
 				} else {
-					return Math.max(
-						0,
-						svg_height - margin.bottom - duration_scale(d.value)
-					);
+					const ret_val =
+						d.value == 0
+							? 0
+							: Math.max(
+									0,
+									svg_height -
+										margin.bottom -
+										duration_scale(d.value)
+							  );
+
+					return ret_val;
 				}
 			})
 			.attr("fill", function (d) {
@@ -297,6 +301,31 @@ export function bar_plot(data, nodes) {
 			})
 			.attr("stroke", "black")
 			.attr("stroke-width", 2);
+
+		u.join("line")
+			.attr("class", "bar_rect")
+			.attr("x1", function (d) {
+				return xSubgroup(d.key) + xSubgroup.bandwidth() / 2;
+			})
+			.attr("x2", function (d) {
+				return xSubgroup(d.key) + xSubgroup.bandwidth() / 2;
+			})
+			.attr("y1", function (d) {
+				if (d.group == "Normalized queue depth") {
+					return depth_scale(d.value - d.std);
+				} else {
+					return duration_scale(d.value - d.std);
+				}
+			})
+			.attr("y2", function (d) {
+				if (d.group == "Normalized queue depth") {
+					return depth_scale(d.value + d.std);
+				} else {
+					return duration_scale(d.value + d.std);
+				}
+			})
+			.style("stroke", "red")
+			.style("stroke-width", 2);
 
 		// adding legends on top of the bar
 		// u.join("text")
@@ -339,14 +368,13 @@ function add_legends(subgroups, texture_scale) {
 		.selectAll("#legend")
 		.data(subgroups)
 		.enter()
-		.append("rect")
+		.append("circle")
 		.attr("class", "legend_element")
-		.attr("x", function (d, i) {
+		.attr("cx", function (d, i) {
 			return margin.left + i * 120;
 		})
-		.attr("y", 10)
-		.attr("width", size)
-		.attr("height", size)
+		.attr("cy", 20)
+		.attr("r", 10)
 		.style("fill", function (d) {
 			return texture_scale(d);
 		})
@@ -361,13 +389,11 @@ function add_legends(subgroups, texture_scale) {
 		.append("text")
 		.attr("class", "legend_element")
 		.attr("x", function (d, i) {
-			return margin.left + i * 120 + 25;
+			return margin.left + i * 120 + 15;
 		})
 		.attr("y", 30)
 		.text(function (d) {
 			return d;
 		})
-		// .attr("text-anchor", "right")
 		.attr("font-size", "20");
-	// .style("alignment-baseline", "middle");
 }
